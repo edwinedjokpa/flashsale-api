@@ -53,7 +53,7 @@ This is a high-performance backend system for handling real-time flash sales usi
 4. Start the server:
 
    ```sh
-   npm start
+   npm run dev
    ```
 
 ## API Endpoints
