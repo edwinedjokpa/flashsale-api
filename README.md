@@ -32,8 +32,8 @@ This is a high-performance backend system for handling real-time flash sales usi
 1. Clone the repository:
 
    ```sh
-   git clone https://github.com/yourusername/flash-sale-system.git
-   cd flash-sale-system
+   git clone https://github.com/edwinedjokpa/flashsale-api.git
+   cd flashsale-api
    ```
 
 2. Install dependencies:
@@ -60,24 +60,30 @@ This is a high-performance backend system for handling real-time flash sales usi
 
 ### Authentication
 
-| Method | Endpoint         | Description                      |
-| ------ | ---------------- | -------------------------------- |
-| POST   | `/auth/register` | Register a new user              |
-| POST   | `/auth/login`    | Authenticate and get a JWT token |
+| Method | Endpoint             | Description                      |
+| ------ | -------------------- | -------------------------------- |
+| POST   | `/api/auth/register` | Register a new user              |
+| POST   | `/api/auth/login`    | Authenticate and get a JWT token |
 
 ### Products
 
-| Method | Endpoint             | Description                 |
-| ------ | -------------------- | --------------------------- |
-| GET    | `/products`          | Get a list of all products  |
-| POST   | `/products`          | Create a new product        |
-| POST   | `/products/purchase` | Buy a product on flase sale |
+| Method | Endpoint                 | Description                 |
+| ------ | ------------------------ | --------------------------- |
+| GET    | `/api/products`          | Get a list of all products  |
+| POST   | `/api/products`          | Create a new product        |
+| POST   | `/api/products/purchase` | Buy a product on flase sale |
+
+### Users
+
+| Method | Endpoint              | Description        |
+| ------ | --------------------- | ------------------ |
+| GET    | `/api/user/dashboard` | Get user dashboard |
 
 ### Leaderboard
 
-| Method | Endpoint       | Description                                 |
-| ------ | -------------- | ------------------------------------------- |
-| GET    | `/leaderboard` | Get a list of buyers in chronological order |
+| Method | Endpoint           | Description                                 |
+| ------ | ------------------ | ------------------------------------------- |
+| GET    | `/api/leaderboard` | Get a list of buyers in chronological order |
 
 ## Handling Concurrency
 
