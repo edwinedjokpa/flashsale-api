@@ -1,10 +1,12 @@
+import { Request } from "express";
+
 export interface ICreateUser {
-  first_name: string;
-  last_name: string;
+  firstName: string;
+  lastName: string;
   email: string;
   password: string;
 }
 
 export interface RequestWithUser extends Request {
-  user: { id: string };
+  user?: { id: string; email: string };
 }

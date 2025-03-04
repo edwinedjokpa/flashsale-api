@@ -1,10 +1,9 @@
+import "reflect-metadata";
 import express, { Application } from "express";
-import mongoose from "mongoose";
-import dotenv from "dotenv";
 import helmet from "helmet";
 import compression from "compression";
 import cors from "cors";
-
+import Container from "typedi";
 // Routes
 import authRoutes from "./auth/auth.routes";
 import userRoutes from "./user/user.routes";
@@ -14,9 +13,6 @@ import leaderboardRoutes from "./leaderboard/leaderboard.routes";
 // Middlewares
 import { globalRequestHandler } from "./common/middlewares/request.handler";
 import { globalErrorHandler } from "./common/middlewares/error.handler";
-import logger from "./common/utils/logger";
-
-dotenv.config();
 
 const app: Application = express();
 app.use(express.json());
@@ -28,24 +24,12 @@ app.use(cors());
 app.use(globalRequestHandler);
 
 // Routes
-app.use("/api/auth", authRoutes);
-app.use("/api/user", userRoutes);
-app.use("/api/products", productRoutes);
-app.use("/api/leaderboard", leaderboardRoutes);
-
-// MongoDB connection
-mongoose
-  .connect(process.env.MONGO_URI as string)
-  .then(() => {
-    logger.info("MongoDB connected...");
-  })
-  .catch((error) => {
-    logger.error("MongoDB connection error:", error);
-  });
+app.use("/api/auth", authRoutes(Container));
+app.use("/api/user", userRoutes(Container));
+app.use("/api/products", productRoutes(Container));
+app.use("/api/leaderboard", leaderboardRoutes(Container));
 
 // error handler
 app.use(globalErrorHandler);
 
-app.listen(process.env.PORT || 3000, () => {
-  logger.info(`Server is running on port ${process.env.PORT || 3000}`);
-});
+export default app;

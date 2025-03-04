@@ -2,14 +2,14 @@ import { z } from "zod";
 
 // Schema for creating a new user
 export const createUserSchema = z.object({
-  first_name: z
+  firstName: z
     .string()
-    .min(3, "first_name must be at least 3 characters long")
-    .max(30, "first_name must be less than or equal to 30 characters long"),
-  last_name: z
+    .min(3, "firstName must be at least 3 characters long")
+    .max(30, "firstName must be less than or equal to 30 characters long"),
+  lastName: z
     .string()
-    .min(3, "last_name must be at least 3 characters long")
-    .max(30, "last_name must be less than or equal to 30 characters long"),
+    .min(3, "lastName must be at least 3 characters long")
+    .max(30, "lastName must be less than or equal to 30 characters long"),
   email: z.string().email("please provide a valid email address"),
   password: z
     .string()

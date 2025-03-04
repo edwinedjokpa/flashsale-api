@@ -1,92 +1,95 @@
 import { NextFunction, Request, Response } from "express";
 import { Http } from "@status/codes";
+import { Inject, Service } from "typedi";
 
 import { createProductSchema, purchaseProductSchema } from "./dto/product.dto";
-import { productService } from "./product.service";
+import { ProductService } from "./product.service";
 import { createResponse } from "../common/utils/response";
-import { RequestWithUser } from "user/interface/user.inteface";
+import { RequestWithUser } from "user/interfaces/user.inteface";
+import catchAsync from "../common/utils/catch-async";
 
-class ProductController {
-  async createProduct(req: Request, res: Response, next: NextFunction) {
-    const parseResult = createProductSchema.safeParse(req.body);
+@Service()
+export class ProductController {
+  constructor(@Inject() private productService: ProductService) {}
 
-    if (!parseResult.success) {
-      return res
-        .status(Http.BadRequest)
-        .json(
-          createResponse(
-            false,
-            Http.BadRequest,
-            "Validation failed",
-            parseResult.error.format()
-          )
-        );
-    }
+  // Create a product
+  public createProduct = catchAsync(
+    async (req: Request, res: Response, next: NextFunction) => {
+      const parseResult = createProductSchema.safeParse(req.body);
 
-    const createProductDto = parseResult.data;
+      if (!parseResult.success) {
+        return res
+          .status(Http.BadRequest)
+          .json(
+            createResponse(
+              false,
+              Http.BadRequest,
+              "Validation failed",
+              parseResult.error.format()
+            )
+          );
+      }
 
-    try {
-      const product = await productService.createProduct(createProductDto);
+      const createProductDto = parseResult.data;
+      const product = await this.productService.createProduct(createProductDto);
       return res.status(Http.Created).json(
         createResponse(true, Http.Created, "Product created successfully", {
           product,
         })
       );
-    } catch (error) {
-      next(error);
     }
-  }
+  );
 
-  async getProducts(req: Request, res: Response, next: NextFunction) {
-    try {
-      const products = await productService.getProducts();
+  // Get products
+  public getProducts = catchAsync(
+    async (req: Request, res: Response, next: NextFunction) => {
+      const products = await this.productService.getProducts();
       return res.status(Http.Ok).json(
         createResponse(true, Http.Ok, "Products fetched successfully", {
           products,
         })
       );
-    } catch (error) {
-      next(error);
     }
-  }
+  );
 
   // Purchase a product
-  async purchaseProduct(
-    req: RequestWithUser,
-    res: Response,
-    next: NextFunction
-  ) {
-    const parseResult = purchaseProductSchema.safeParse(req.body);
+  public purchaseProduct = catchAsync(
+    async (req: RequestWithUser, res: Response, next: NextFunction) => {
+      const parseResult = purchaseProductSchema.safeParse(req.body);
 
-    if (!parseResult.success) {
-      return res
-        .status(Http.BadRequest)
-        .json(
-          createResponse(
-            false,
-            Http.BadRequest,
-            "Validation failed",
-            parseResult.error.format()
-          )
-        );
-    }
+      if (!parseResult.success) {
+        return res
+          .status(Http.BadRequest)
+          .json(
+            createResponse(
+              false,
+              Http.BadRequest,
+              "Validation failed",
+              parseResult.error.format()
+            )
+          );
+      }
 
-    const purchaseProductDto = parseResult.data;
+      const purchaseProductDto = parseResult.data;
 
-    try {
-      const product = await productService.purchaseProduct(
+      if (!req.user) {
+        return res
+          .status(Http.Unauthorized)
+          .json(
+            createResponse(false, Http.Unauthorized, "User not authenticated")
+          );
+      }
+
+      const product = await this.productService.purchaseProduct(
         purchaseProductDto.productId,
         req.user.id
       );
+
       return res.status(Http.Ok).json(
         createResponse(true, Http.Ok, "Product purchase successful", {
           product,
         })
       );
-    } catch (error) {
-      next(error);
     }
-  }
+  );
 }
-
-export const productController = new ProductController();

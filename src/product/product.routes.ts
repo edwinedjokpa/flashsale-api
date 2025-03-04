@@ -1,15 +1,34 @@
-import { Application, Router } from "express";
-import { productController } from "./product.controller";
+import { Router } from "express";
+import { ProductController } from "./product.controller";
 import { authMiddleware } from "../common/middlewares/auth.middleware";
+import { Inject, Service } from "typedi";
 
 const router = Router();
 
-router.post("/", productController.createProduct as unknown as Application);
-router.get("/", productController.getProducts as unknown as Application);
-router.post(
-  "/purchase",
-  authMiddleware,
-  productController.purchaseProduct as unknown as Application
-);
+@Service()
+export class ProductRouter {
+  constructor(@Inject() private productController: ProductController) {}
 
-export default router;
+  public getRouter(): Router {
+    const router = Router();
+
+    router.post(
+      "/",
+      this.productController.createProduct.bind(this.productController)
+    );
+    router.get(
+      "/",
+      this.productController.getProducts.bind(this.productController)
+    );
+    router.post(
+      "/purchase",
+      authMiddleware,
+      this.productController.purchaseProduct.bind(this.productController)
+    );
+
+    return router;
+  }
+}
+
+// Export the router
+export default (container: any) => container.get(ProductRouter).getRouter();

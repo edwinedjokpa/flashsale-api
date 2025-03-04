@@ -12,6 +12,8 @@ export const globalErrorHandler = (
       success: false,
       message: err.message,
     });
+
+    return;
   }
 
   res.status(500).json({
@@ -19,4 +21,6 @@ export const globalErrorHandler = (
     message: err.message || "Internal Server Error!",
     stack: err.stack || "",
   });
+
+  return;
 };

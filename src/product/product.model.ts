@@ -1,8 +1,10 @@
-import { ICreateProduct } from "./interface/product.interface";
+import { Service } from "typedi";
+import { ICreateProduct } from "./interfaces/product.interface";
 import Product, { IProduct } from "./product.schema";
 import { startSession, Types } from "mongoose";
 
-class ProductRepository {
+@Service()
+class ProductModel {
   async create(productData: ICreateProduct): Promise<IProduct> {
     return Product.create(productData);
   }
@@ -54,4 +56,4 @@ class ProductRepository {
   }
 }
 
-export const productRepository = new ProductRepository();
+export default ProductModel;

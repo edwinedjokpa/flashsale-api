@@ -1,73 +1,70 @@
 import { NextFunction, Request, Response } from "express";
 import { Http } from "@status/codes";
-
-import { authService } from "./auth.service";
+import { Service } from "typedi";
+import { AuthService } from "./auth.service";
 import { createUserSchema, loginUserSchema } from "./dto/auth.dto";
 import { createResponse } from "../common/utils/response";
+import catchAsync from "../common/utils/catch-async";
 
-class AuthController {
-  // Register user
-  async register(req: Request, res: Response, next: NextFunction) {
-    const parseResult = createUserSchema.safeParse(req.body);
+@Service()
+export class AuthController {
+  constructor(private authService: AuthService) {}
 
-    // If validation fails, return the errors
-    if (!parseResult.success) {
-      return res
-        .status(Http.BadRequest)
-        .json(
-          createResponse(
-            false,
-            Http.BadRequest,
-            "Validation failed",
-            parseResult.error.format()
-          )
-        );
-    }
+  public register = catchAsync(
+    async (req: Request, res: Response, next: NextFunction) => {
+      const parseResult = createUserSchema.safeParse(req.body);
 
-    const createUserDto = parseResult.data;
+      // If validation fails, return the errors
+      if (!parseResult.success) {
+        return res
+          .status(Http.BadRequest)
+          .json(
+            createResponse(
+              false,
+              Http.BadRequest,
+              "Validation failed",
+              parseResult.error.format()
+            )
+          );
+      }
 
-    try {
-      const user = await authService.register(createUserDto);
-      res.status(Http.Created).json(
+      const createUserDto = parseResult.data;
+
+      // Proceed with the registration
+      const user = await this.authService.register(createUserDto);
+      return res.status(Http.Created).json(
         createResponse(true, Http.Created, "User registered successfully", {
           user,
         })
       );
-    } catch (error) {
-      next(error);
     }
-  }
+  );
 
-  // Login a user
-  async login(req: Request, res: Response, next: NextFunction) {
-    const parseResult = loginUserSchema.safeParse(req.body);
+  public login = catchAsync(
+    async (req: Request, res: Response, next: NextFunction) => {
+      const parseResult = loginUserSchema.safeParse(req.body);
 
-    if (!parseResult.success) {
-      return res
-        .status(Http.BadRequest)
-        .json(
-          createResponse(
-            false,
-            Http.BadRequest,
-            "Validation failed",
-            parseResult.error.format()
-          )
-        );
-    }
+      if (!parseResult.success) {
+        return res
+          .status(Http.BadRequest)
+          .json(
+            createResponse(
+              false,
+              Http.BadRequest,
+              "Validation failed",
+              parseResult.error.format()
+            )
+          );
+      }
 
-    const loginUserDto = parseResult.data;
+      const loginUserDto = parseResult.data;
 
-    try {
-      const token = await authService.login(loginUserDto);
+      const token = await this.authService.login(loginUserDto);
       return res
         .status(Http.Ok)
         .json(
           createResponse(true, Http.Ok, "User login successful", { token })
         );
-    } catch (error) {
-      next(error);
     }
-  }
+  );
 }
-
-export const authController = new AuthController();

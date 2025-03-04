@@ -1,9 +1,23 @@
-import { Application, Router } from "express";
-import { authController } from "./auth.controller";
+import { Router } from "express";
+import { Inject, Service } from "typedi";
+import { AuthController } from "./auth.controller";
 
-const router = Router();
+@Service()
+export class AuthRouter {
+  constructor(@Inject() private authController: AuthController) {}
 
-router.post("/register", authController.register as unknown as Application);
-router.post("/login", authController.login as unknown as Application);
+  public getRouter(): Router {
+    const router = Router();
 
-export default router;
+    router.post(
+      "/register",
+      this.authController.register.bind(this.authController)
+    );
+    router.post("/login", this.authController.login.bind(this.authController));
+
+    return router;
+  }
+}
+
+// Export the router
+export default (container: any) => container.get(AuthRouter).getRouter();
