@@ -3,8 +3,6 @@ import { ProductController } from "./product.controller";
 import { authMiddleware } from "../common/middlewares/auth.middleware";
 import { Inject, Service } from "typedi";
 
-const router = Router();
-
 @Service()
 export class ProductRouter {
   constructor(@Inject() private productController: ProductController) {}
@@ -19,6 +17,22 @@ export class ProductRouter {
     router.get(
       "/",
       this.productController.getProducts.bind(this.productController)
+    );
+    router.get(
+      "/:productId",
+      this.productController.getProduct.bind(this.productController)
+    );
+    router.put(
+      "/:productId",
+      this.productController.updateProduct.bind(this.productController)
+    );
+    router.delete(
+      "/:productId",
+      this.productController.deleteProduct.bind(this.productController)
+    );
+    router.put(
+      "/:productId/restock",
+      this.productController.restockProduct.bind(this.productController)
     );
     router.post(
       "/purchase",

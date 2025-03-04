@@ -72,6 +72,9 @@ This is a high-performance backend system for handling real-time flash sales usi
 | GET    | `/api/products`          | Get a list of all products  |
 | POST   | `/api/products`          | Create a new product        |
 | POST   | `/api/products/purchase` | Buy a product on flase sale |
+| PUT    | `/api/products/:id`      | Update a product            |
+| PUT    | `/api/products/restock`  | Update product stock        |
+| DELETE | `/api/products/:id`      | Delete a product            |
 
 ### Users
 

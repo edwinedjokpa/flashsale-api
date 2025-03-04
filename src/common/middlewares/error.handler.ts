@@ -10,6 +10,7 @@ export const globalErrorHandler = (
   if (err instanceof HttpException) {
     res.status(err.status).json({
       success: false,
+      status: err.status,
       message: err.message,
     });
 
@@ -18,6 +19,7 @@ export const globalErrorHandler = (
 
   res.status(500).json({
     success: false,
+    status: 500,
     message: err.message || "Internal Server Error!",
     stack: err.stack || "",
   });

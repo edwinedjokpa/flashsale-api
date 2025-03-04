@@ -26,6 +26,21 @@ class ProductModel {
     return Product.findByIdAndUpdate(productId, data, { new: true });
   }
 
+  async delete(productId: string): Promise<IProduct | null> {
+    return Product.findByIdAndDelete(productId);
+  }
+
+  async incrementStock(
+    productId: string,
+    stock: number
+  ): Promise<IProduct | null> {
+    return Product.findOneAndUpdate(
+      { _id: productId },
+      { $inc: { stock: stock } },
+      { new: true }
+    );
+  }
+
   async decrementStock(productId: string): Promise<IProduct | null> {
     return Product.findOneAndUpdate(
       { _id: productId, stock: { $gt: 0 } },

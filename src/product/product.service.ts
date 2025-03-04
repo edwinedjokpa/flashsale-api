@@ -60,6 +60,38 @@ export class ProductService {
     return await this.getProduct(productId);
   }
 
+  async deleteProduct(productId: string): Promise<void> {
+    const product = await this.getProduct(productId);
+    await this.productModel.delete(product._id as string);
+  }
+
+  async incrementProductStock(
+    productId: string,
+    stock: number
+  ): Promise<IProduct> {
+    const product = await this.productModel.incrementStock(productId, stock);
+
+    if (!product) {
+      throw new HttpException(
+        Http.BadRequest,
+        "Failed to increment product stock"
+      );
+    }
+
+    return this.getProduct(productId);
+  }
+
+  async decrementProductStock(productId: string): Promise<Boolean> {
+    const product = await this.productModel.decrementStock(productId);
+    if (!product) {
+      throw new HttpException(
+        Http.BadRequest,
+        "Failed to decrement product stock"
+      );
+    }
+    return true;
+  }
+
   async purchaseProduct(productId: string, userId: string): Promise<IProduct> {
     const product = await this.getProduct(productId);
 
@@ -88,10 +120,8 @@ export class ProductService {
     session.startTransaction();
 
     try {
-      const updatedProduct = await this.productModel.decrementStock(productId);
-      if (!updatedProduct) {
-        throw new HttpException(Http.BadRequest, "Failed to decrement stock");
-      }
+      //Decrement stock
+      await this.decrementProductStock(productId);
 
       // Add to leaderboard
       await this.leaderboardService.addToLeaderboard(userId);
