@@ -1,20 +1,17 @@
+import { Service } from "typedi";
 import { ICreateLeaderboard } from "./interface/leaderboard.interface";
 import Leaderboard, { ILeaderboard } from "./leaderboard.schema";
 
-class LeaderboardRepository {
+@Service()
+class LeaderboardModel {
   async create(data: ICreateLeaderboard): Promise<ILeaderboard> {
-    const leaderboardEntry = new Leaderboard({
-      userId: data.userId,
-      purchaseTime: data.purchasedTime,
-    });
-
-    return leaderboardEntry.save();
+    return Leaderboard.create(data);
   }
 
   async getAll(): Promise<ILeaderboard[]> {
     return Leaderboard.find()
       .sort({ purchaseTime: 1 })
-      .populate("userId", "name");
+      .populate("userId", "firstName lastName email");
   }
 
   startSession() {
@@ -22,4 +19,4 @@ class LeaderboardRepository {
   }
 }
 
-export const leaderboardRepository = new LeaderboardRepository();
+export { LeaderboardModel };

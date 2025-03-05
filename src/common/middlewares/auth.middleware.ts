@@ -1,30 +1,29 @@
-import { Request, Response, NextFunction } from "express";
 import jwt from "jsonwebtoken";
+import { Request, Response, NextFunction } from "express";
 import dotenv from "dotenv";
 import { Http } from "@status/codes";
 
 import { HttpException } from "../utils/http.exception";
+import catchAsync from "../utils/catch-async";
+import { RequestWithUser } from "user/interfaces/user.inteface";
+import { JwtPayload } from "auth/interfaces/jwt-payload.interface";
 
 dotenv.config();
 
 const JWT_SECRET = process.env.JWT_SECRET as string;
 
-export const authMiddleware = (
-  req: Request & { user?: any },
-  res: Response,
-  next: NextFunction
-) => {
-  const token = req.header("Authorization")?.replace("Bearer ", "");
+export const authMiddleware = catchAsync(
+  async (req: RequestWithUser, res: Response, next: NextFunction) => {
+    const token = req.header("Authorization")?.replace("Bearer ", "");
 
-  if (!token) {
-    throw new HttpException(
-      Http.Unauthorized,
-      "No token, authorization denied"
-    );
-  }
+    if (!token) {
+      throw new HttpException(
+        Http.Unauthorized,
+        "No token, authorization denied"
+      );
+    }
 
-  try {
-    const decoded = jwt.verify(token, JWT_SECRET as string);
+    const decoded = jwt.verify(token, JWT_SECRET) as JwtPayload;
 
     if (!decoded) {
       throw new HttpException(Http.Unauthorized, "Invalid token");
@@ -32,7 +31,5 @@ export const authMiddleware = (
 
     req.user = decoded;
     next();
-  } catch (error) {
-    next(error);
   }
-};
+);

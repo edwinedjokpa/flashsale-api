@@ -1,8 +1,10 @@
-import { ICreateProduct } from "./interface/product.interface";
+import { Service } from "typedi";
+import { ICreateProduct } from "./interfaces/product.interface";
 import Product, { IProduct } from "./product.schema";
 import { startSession, Types } from "mongoose";
 
-class ProductRepository {
+@Service()
+class ProductModel {
   async create(productData: ICreateProduct): Promise<IProduct> {
     return Product.create(productData);
   }
@@ -22,6 +24,21 @@ class ProductRepository {
     data: Partial<IProduct>
   ): Promise<IProduct | null> {
     return Product.findByIdAndUpdate(productId, data, { new: true });
+  }
+
+  async delete(productId: string): Promise<IProduct | null> {
+    return Product.findByIdAndDelete(productId);
+  }
+
+  async incrementStock(
+    productId: string,
+    stock: number
+  ): Promise<IProduct | null> {
+    return Product.findOneAndUpdate(
+      { _id: productId },
+      { $inc: { stock: stock } },
+      { new: true }
+    );
   }
 
   async decrementStock(productId: string): Promise<IProduct | null> {
@@ -54,4 +71,4 @@ class ProductRepository {
   }
 }
 
-export const productRepository = new ProductRepository();
+export default ProductModel;

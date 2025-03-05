@@ -1,22 +1,22 @@
 import { NextFunction, Request, Response } from "express";
+import { Service, Inject } from "typedi";
 import { Http } from "@status/codes";
-
-import { leaderboardService } from "./leaderboard.service";
+import { LeaderboardService } from "./leaderboard.service";
 import { createResponse } from "../common/utils/response";
+import catchAsync from "../common/utils/catch-async";
 
-class LeaderboardController {
-  async getLeaderboard(req: Request, res: Response, next: NextFunction) {
-    try {
-      const leaderboard = await leaderboardService.getLeaderboard();
+@Service()
+export class LeaderboardController {
+  constructor(@Inject() private leaderboardService: LeaderboardService) {}
+
+  getLeaderboard = catchAsync(
+    async (req: Request, res: Response, next: NextFunction) => {
+      const leaderboard = await this.leaderboardService.getLeaderboard();
       res.status(Http.Ok).json(
         createResponse(true, Http.Ok, "Leaderboard data fetched successfully", {
           leaderboard,
         })
       );
-    } catch (error) {
-      next(error);
     }
-  }
+  );
 }
-
-export const leaderboardController = new LeaderboardController();

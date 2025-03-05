@@ -1,16 +1,26 @@
 import { NextFunction, Response } from "express";
 import { Http } from "@status/codes";
 
-import { userService } from "./user.service";
+import { UserService } from "./user.service";
 import { createResponse } from "../common/utils/response";
-import { RequestWithUser } from "./interface/user.inteface";
+import { RequestWithUser } from "./interfaces/user.inteface";
+import { Inject, Service } from "typedi";
+import { HttpException } from "../common/utils/http.exception";
+import catchAsync from "../common/utils/catch-async";
 
-class UserController {
-  async getDashboard(req: RequestWithUser, res: Response, next: NextFunction) {
-    try {
-      const user = await userService.dashboard(req.user.id);
+@Service()
+export class UserController {
+  constructor(@Inject() private userService: UserService) {}
 
-      res
+  public getDashboard = catchAsync(
+    async (req: RequestWithUser, res: Response, next: NextFunction) => {
+      if (!req.user) {
+        throw new HttpException(Http.Unauthorized, "User not authenticated");
+      }
+
+      const user = await this.userService.dashboard(req.user.id);
+
+      return res
         .status(Http.Ok)
         .json(
           createResponse(
@@ -20,10 +30,6 @@ class UserController {
             { user }
           )
         );
-    } catch (error) {
-      next(error);
     }
-  }
+  );
 }
-
-export const userController = new UserController();

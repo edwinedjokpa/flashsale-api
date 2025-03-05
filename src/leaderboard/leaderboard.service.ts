@@ -1,15 +1,20 @@
-import { Types } from "mongoose";
-import { leaderboardRepository } from "./leaderboard.respository";
-import { ILeaderboard } from "./leaderboard.schema";
+import { Inject, Service } from "typedi";
 
-class LeaderboardService {
+import { ILeaderboard } from "./leaderboard.schema";
+import { LeaderboardModel } from "./leaderboard.model";
+
+@Service()
+export class LeaderboardService {
+  constructor(@Inject() private leaderboardModel: LeaderboardModel) {}
+
   async addToLeaderboard(userId: string): Promise<ILeaderboard> {
-    return leaderboardRepository.create({ userId, purchasedTime: new Date() });
+    return this.leaderboardModel.create({
+      userId,
+      purchasedTime: new Date(),
+    });
   }
 
   async getLeaderboard(): Promise<ILeaderboard[]> {
-    return leaderboardRepository.getAll();
+    return this.leaderboardModel.getAll();
   }
 }
-
-export const leaderboardService = new LeaderboardService();

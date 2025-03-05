@@ -1,28 +1,34 @@
 import { Http } from "@status/codes";
 
-import { productRepository } from "./product.repository";
+import ProductModel from "./product.model";
 import { HttpException } from "../common/utils/http.exception";
 import { IProduct } from "./product.schema";
 import { CreateProductDto } from "./dto/product.dto";
-import { leaderboardService } from "../leaderboard/leaderboard.service";
 import { Types } from "mongoose";
+import { Inject, Service } from "typedi";
+import { LeaderboardService } from "../leaderboard/leaderboard.service";
 
-class ProductService {
+@Service()
+export class ProductService {
+  constructor(
+    @Inject() private productModel: ProductModel,
+    @Inject() private leaderboardService: LeaderboardService
+  ) {}
   async createProduct(createProductDto: CreateProductDto): Promise<IProduct> {
     const roundedPrice = Math.round(createProductDto.price * 100) / 100;
     const formattedPrice = roundedPrice.toFixed(2);
 
-    return productRepository.create({
+    return this.productModel.create({
       ...createProductDto,
       price: parseFloat(formattedPrice),
     });
   }
 
   async getProducts(): Promise<IProduct[]> {
-    return productRepository.findAll();
+    return this.productModel.findAll();
   }
   async getProduct(productId: string): Promise<IProduct> {
-    const product = await productRepository.findById(productId);
+    const product = await this.productModel.findById(productId);
     if (!product) {
       throw new HttpException(Http.NotFound, "Product not found!");
     }
@@ -42,7 +48,7 @@ class ProductService {
       updateProductDto.price = parseFloat(formattedPrice);
     }
 
-    const updatedProduct = await productRepository.update(
+    const updatedProduct = await this.productModel.update(
       productId,
       updateProductDto
     );
@@ -52,6 +58,38 @@ class ProductService {
     }
 
     return await this.getProduct(productId);
+  }
+
+  async deleteProduct(productId: string): Promise<void> {
+    const product = await this.getProduct(productId);
+    await this.productModel.delete(product._id as string);
+  }
+
+  async incrementProductStock(
+    productId: string,
+    stock: number
+  ): Promise<IProduct> {
+    const product = await this.productModel.incrementStock(productId, stock);
+
+    if (!product) {
+      throw new HttpException(
+        Http.BadRequest,
+        "Failed to increment product stock"
+      );
+    }
+
+    return this.getProduct(productId);
+  }
+
+  async decrementProductStock(productId: string): Promise<Boolean> {
+    const product = await this.productModel.decrementStock(productId);
+    if (!product) {
+      throw new HttpException(
+        Http.BadRequest,
+        "Failed to decrement product stock"
+      );
+    }
+    return true;
   }
 
   async purchaseProduct(productId: string, userId: string): Promise<IProduct> {
@@ -67,7 +105,7 @@ class ProductService {
       throw new HttpException(Http.BadRequest, "Product out of stock.");
     }
 
-    const userHasPurchased = await productRepository.hasUserPurchased(
+    const userHasPurchased = await this.productModel.hasUserPurchased(
       productId,
       userId
     );
@@ -78,21 +116,19 @@ class ProductService {
       );
     }
 
-    const session = await productRepository.startSession();
+    const session = await this.productModel.startSession();
     session.startTransaction();
 
     try {
-      const updatedProduct = await productRepository.decrementStock(productId);
-      if (!updatedProduct) {
-        throw new HttpException(Http.BadRequest, "Failed to decrement stock");
-      }
+      //Decrement stock
+      await this.decrementProductStock(productId);
 
       // Add to leaderboard
-      await leaderboardService.addToLeaderboard(userId);
+      await this.leaderboardService.addToLeaderboard(userId);
 
       //Add purchased user
       const purchasedUser = new Types.ObjectId(userId);
-      await productRepository.addPurchasedUser(productId, purchasedUser);
+      await this.productModel.addPurchasedUser(productId, purchasedUser);
 
       //Commit transaction
       await session.commitTransaction();
@@ -107,5 +143,3 @@ class ProductService {
   }
   // Add other methods as needed
 }
-
-export const productService = new ProductService();
