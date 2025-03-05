@@ -2,11 +2,7 @@ import { NextFunction, Request, Response } from "express";
 import { Http } from "@status/codes";
 import { Inject, Service } from "typedi";
 
-import {
-  createProductSchema,
-  purchaseProductSchema,
-  restockProductSchema,
-} from "./dto/product.dto";
+import { createProductSchema, restockProductSchema } from "./dto/product.dto";
 import { ProductService } from "./product.service";
 import { createResponse } from "../common/utils/response";
 import { RequestWithUser } from "user/interfaces/user.inteface";
@@ -148,22 +144,7 @@ export class ProductController {
   // Purchase a product
   public purchaseProduct = catchAsync(
     async (req: RequestWithUser, res: Response, next: NextFunction) => {
-      const parseResult = purchaseProductSchema.safeParse(req.body);
-
-      if (!parseResult.success) {
-        return res
-          .status(Http.BadRequest)
-          .json(
-            createResponse(
-              false,
-              Http.BadRequest,
-              "Validation failed",
-              parseResult.error.format()
-            )
-          );
-      }
-
-      const purchaseProductDto = parseResult.data;
+      const productId = req.params.productId;
 
       if (!req.user) {
         return res
@@ -174,7 +155,7 @@ export class ProductController {
       }
 
       const product = await this.productService.purchaseProduct(
-        purchaseProductDto.productId,
+        productId,
         req.user.id
       );
 

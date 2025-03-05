@@ -12,13 +12,8 @@ export const createProductSchema = z.object({
   saleEndTime: z.string().datetime({ offset: true }).optional(),
 });
 
-export const purchaseProductSchema = z.object({
-  productId: z.string(),
-});
-
 export const restockProductSchema = z.object({
   stock: z.number().int().min(1, "stock must be at least 1"),
 });
 
 export type CreateProductDto = z.infer<typeof createProductSchema>;
-export type PurchaseProductDto = z.infer<typeof purchaseProductSchema>;

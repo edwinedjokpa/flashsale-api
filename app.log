@@ -88,3 +88,15 @@
 2025-03-04T23:02:58.235Z [[32minfo[39m]: PUT /api/products/67c77d127995f2a3752aa7e6/ - 2025-03-04T23:02:58.234Z
 2025-03-04T23:03:22.017Z [[32minfo[39m]: Server is running on port 3000
 2025-03-04T23:03:26.425Z [[32minfo[39m]: MongoDB connected...
+2025-03-05T01:29:04.765Z [[32minfo[39m]: Server is running on port 3000
+2025-03-05T01:29:07.129Z [[32minfo[39m]: MongoDB connected...
+2025-03-05T01:29:20.216Z [[32minfo[39m]: POST /api/auth/login - 2025-03-05T01:29:20.216Z
+2025-03-05T01:29:27.469Z [[32minfo[39m]: POST /api/products/purchase - 2025-03-05T01:29:27.469Z
+2025-03-05T01:29:36.418Z [[32minfo[39m]: POST /api/products/purchase - 2025-03-05T01:29:36.418Z
+2025-03-05T01:29:57.039Z [[32minfo[39m]: POST /api/products/67c77d127995f2a3752aa7e6/purchase - 2025-03-05T01:29:57.039Z
+2025-03-05T01:30:23.925Z [[32minfo[39m]: Server is running on port 3000
+2025-03-05T01:30:28.364Z [[32minfo[39m]: MongoDB connected...
+2025-03-05T01:30:30.482Z [[32minfo[39m]: POST /api/products/67c77d127995f2a3752aa7e6/purchase - 2025-03-05T01:30:30.482Z
+2025-03-05T01:30:34.119Z [[32minfo[39m]: POST /api/products/67c77d127995f2a3752aa7e6/purchase - 2025-03-05T01:30:34.118Z
+2025-03-05T01:30:50.140Z [[32minfo[39m]: POST /api/products/67c77d1d7995f2a3752aa7e8/purchase - 2025-03-05T01:30:50.140Z
+2025-03-05T01:31:01.749Z [[32minfo[39m]: POST /api/products/67c77d1d7995f2a3752aa7e8/purchase - 2025-03-05T01:31:01.749Z

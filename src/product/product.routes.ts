@@ -35,7 +35,7 @@ export class ProductRouter {
       this.productController.restockProduct.bind(this.productController)
     );
     router.post(
-      "/purchase",
+      "/:productId/purchase",
       authMiddleware,
       this.productController.purchaseProduct.bind(this.productController)
     );
