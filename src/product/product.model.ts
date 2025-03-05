@@ -1,7 +1,7 @@
 import { Service } from "typedi";
 import { ICreateProduct } from "./interfaces/product.interface";
 import Product, { IProduct } from "./product.schema";
-import { startSession, Types } from "mongoose";
+import { ClientSession, startSession, Types } from "mongoose";
 
 @Service()
 class ProductModel {
@@ -41,21 +41,26 @@ class ProductModel {
     );
   }
 
-  async decrementStock(productId: string): Promise<IProduct | null> {
+  async decrementStock(
+    productId: string,
+    session: ClientSession
+  ): Promise<IProduct | null> {
     return Product.findOneAndUpdate(
       { _id: productId, stock: { $gt: 0 } },
-      { $inc: { stock: -1 } },
-      { new: true }
+      { $inc: { stock: -1, soldUnits: 1 } },
+      { session, new: true }
     );
   }
 
   async addPurchasedUser(
     productId: string,
-    purchasedUser: Types.ObjectId
+    purchasedUser: Types.ObjectId,
+    session: ClientSession
   ): Promise<void> {
     await Product.updateOne(
       { _id: productId },
-      { $push: { purchasedUsers: purchasedUser } }
+      { $push: { purchasedUsers: purchasedUser } },
+      { session }
     );
   }
 
