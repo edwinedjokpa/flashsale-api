@@ -6,6 +6,6 @@ export const globalRequestHandler = (
   res: Response,
   next: NextFunction
 ) => {
-  logger.info(`${req.method} ${req.url} - ${new Date().toISOString()}`);
+  logger.info(`${req.method} ${req.url}`);
   next();
 };

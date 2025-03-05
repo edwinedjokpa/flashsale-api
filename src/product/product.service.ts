@@ -4,7 +4,7 @@ import ProductModel from "./product.model";
 import { HttpException } from "../common/utils/http.exception";
 import { IProduct } from "./product.schema";
 import { CreateProductDto } from "./dto/product.dto";
-import { Types } from "mongoose";
+import { ClientSession, Types } from "mongoose";
 import { Inject, Service } from "typedi";
 import { LeaderboardService } from "../leaderboard/leaderboard.service";
 
@@ -81,8 +81,11 @@ export class ProductService {
     return this.getProduct(productId);
   }
 
-  async decrementProductStock(productId: string): Promise<Boolean> {
-    const product = await this.productModel.decrementStock(productId);
+  async decrementProductStock(
+    productId: string,
+    session: ClientSession
+  ): Promise<Boolean> {
+    const product = await this.productModel.decrementStock(productId, session);
     if (!product) {
       throw new HttpException(
         Http.BadRequest,
@@ -95,14 +98,17 @@ export class ProductService {
   async purchaseProduct(productId: string, userId: string): Promise<IProduct> {
     const product = await this.getProduct(productId);
 
-    //Check sales start time
+    // Check sales start time
     if (new Date().toISOString() < product.saleStartTime) {
       throw new HttpException(Http.BadRequest, "Sale has not started yet.");
     }
 
-    //Check product stock
+    // Check product stock
     if (product.stock <= 0) {
-      throw new HttpException(Http.BadRequest, "Product out of stock.");
+      throw new HttpException(
+        Http.BadRequest,
+        "Sales have ended as the product is out of stock."
+      );
     }
 
     const userHasPurchased = await this.productModel.hasUserPurchased(
@@ -120,17 +126,25 @@ export class ProductService {
     session.startTransaction();
 
     try {
-      //Decrement stock
-      await this.decrementProductStock(productId);
+      // Decrement stock and increment soldUnits within the session
+      await this.decrementProductStock(productId, session);
+
+      // Add purchased user to the product
+      const purchasedUser = new Types.ObjectId(userId);
+      await this.productModel.addPurchasedUser(
+        productId,
+        purchasedUser,
+        session
+      );
 
       // Add to leaderboard
-      await this.leaderboardService.addToLeaderboard(userId);
+      await this.leaderboardService.addToLeaderboard(
+        userId,
+        productId,
+        session
+      );
 
-      //Add purchased user
-      const purchasedUser = new Types.ObjectId(userId);
-      await this.productModel.addPurchasedUser(productId, purchasedUser);
-
-      //Commit transaction
+      // Commit transaction
       await session.commitTransaction();
       session.endSession();
 
@@ -141,5 +155,6 @@ export class ProductService {
       throw error;
     }
   }
+
   // Add other methods as needed
 }
