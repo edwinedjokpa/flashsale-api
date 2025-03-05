@@ -6,7 +6,6 @@ export interface ILeaderboard extends Document {
   purchasedTime: Date;
 }
 
-// Define the schema for Leaderboard
 const leaderboardSchema = new Schema<ILeaderboard>(
   {
     userId: {
@@ -26,6 +25,11 @@ const leaderboardSchema = new Schema<ILeaderboard>(
   },
   { timestamps: true }
 );
+
+leaderboardSchema.index({ userId: 1, productId: 1 });
+leaderboardSchema.index({ purchasedTime: 1 });
+
+leaderboardSchema.index({ userId: 1, productId: 1, purchasedTime: 1 });
 
 const Leaderboard = model<ILeaderboard>("Leaderboard", leaderboardSchema);
 

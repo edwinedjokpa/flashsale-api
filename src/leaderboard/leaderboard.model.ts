@@ -12,89 +12,6 @@ class LeaderboardModel {
     const createdLeaderboard = await Leaderboard.create([data], { session });
     return createdLeaderboard[0];
   }
-  // async getAll(): Promise<ILeaderboard[]> {
-  //   return Leaderboard.aggregate([
-  //     {
-  //       $group: {
-  //         _id: "$productId",
-  //         rankings: {
-  //           $push: {
-  //             userId: "$userId",
-  //             purchasedTime: "$purchasedTime",
-  //           },
-  //         },
-  //       },
-  //     },
-
-  //     {
-  //       $lookup: {
-  //         from: "users",
-  //         localField: "rankings.userId",
-  //         foreignField: "_id",
-  //         as: "users",
-  //       },
-  //     },
-
-  //     {
-  //       $project: {
-  //         productId: "$_id",
-  //         rankings: {
-  //           $map: {
-  //             input: "$rankings",
-  //             as: "entry",
-  //             in: {
-  //               purchasedTime: "$$entry.purchasedTime",
-  //               userId: "$$entry.userId",
-  //               email: {
-  //                 $arrayElemAt: [
-  //                   {
-  //                     $filter: {
-  //                       input: "$users",
-  //                       as: "user",
-  //                       cond: { $eq: ["$$user._id", "$$entry.userId"] },
-  //                     },
-  //                   },
-  //                   0,
-  //                 ],
-  //               },
-  //             },
-  //           },
-  //         },
-  //         _id: 0,
-  //       },
-  //     },
-
-  //     {
-  //       $project: {
-  //         productId: 1,
-  //         rankings: {
-  //           $map: {
-  //             input: "$rankings",
-  //             as: "entry",
-  //             in: {
-  //               purchasedTime: "$$entry.purchasedTime",
-  //               userId: "$$entry.userId",
-  //               email: "$$entry.email.email",
-  //             },
-  //           },
-  //         },
-  //       },
-  //     },
-
-  //     {
-  //       $project: {
-  //         productId: 1,
-  //         rankings: {
-  //           $sortArray: {
-  //             input: "$rankings",
-  //             sortBy: { purchasedTime: 1 },
-  //           },
-  //         },
-  //       },
-  //     },
-  //   ]);
-  // }
-
   async getAll(): Promise<ILeaderboard[]> {
     return Leaderboard.aggregate([
       {
@@ -117,7 +34,7 @@ class LeaderboardModel {
           pipeline: [
             {
               $project: {
-                _id: 1, // Only include _id and email
+                _id: 1,
                 email: 1,
               },
             },
@@ -150,6 +67,22 @@ class LeaderboardModel {
             },
           },
           _id: 0,
+        },
+      },
+      {
+        $project: {
+          productId: 1,
+          rankings: {
+            $map: {
+              input: "$rankings",
+              as: "entry",
+              in: {
+                purchasedTime: "$$entry.purchasedTime",
+                userId: "$$entry.userId",
+                email: "$$entry.email.email",
+              },
+            },
+          },
         },
       },
       {

@@ -6,7 +6,7 @@ export interface IProduct extends Document {
   stock: number;
   soldUnits: number;
   saleStartTime: string;
-  purchasedUsers: string[];
+  purchasedUsers: string[]; // References to the User collection
 }
 
 const productSchema = new Schema<IProduct>(
@@ -21,5 +21,10 @@ const productSchema = new Schema<IProduct>(
   { timestamps: true }
 );
 
+productSchema.index({ saleStartTime: 1 });
+productSchema.index({ stock: 1 });
+productSchema.index({ purchasedUsers: 1 });
+
 const Product = model<IProduct>("Product", productSchema);
+
 export default Product;
