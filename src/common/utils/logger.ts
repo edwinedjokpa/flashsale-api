@@ -1,4 +1,5 @@
 import winston, { Logger } from "winston";
+import { configService } from "../../config";
 
 // Create a logger
 const logger: Logger = winston.createLogger({
@@ -11,8 +12,11 @@ const logger: Logger = winston.createLogger({
     )
   ),
   transports: [
-    new winston.transports.Console({ level: "info" }),
-    new winston.transports.File({ filename: "app.log", level: "info" }),
+    new winston.transports.Console({ level: configService.LOG_LEVEL }),
+    new winston.transports.File({
+      filename: configService.LOG_FILE_PATH,
+      level: configService.LOG_LEVEL,
+    }),
   ],
 });
 

@@ -4,7 +4,7 @@ import Product, { IProduct } from "./product.schema";
 import { ClientSession, startSession, Types } from "mongoose";
 
 @Service()
-class ProductModel {
+export class ProductModel {
   async create(productData: ICreateProduct): Promise<IProduct> {
     return Product.create(productData);
   }
@@ -41,26 +41,26 @@ class ProductModel {
     );
   }
 
-  async decrementStock(
+  async decrementStock(productId: string): Promise<IProduct | null> {
+    return Product.findOneAndUpdate(
+      { _id: productId, stock: { $gt: 0 } },
+      { $inc: { stock: -1, soldUnits: 1 } },
+      { new: true }
+    );
+  }
+
+  async decrementStockAndAddPurchasedUser(
     productId: string,
+    purchasedUser: Types.ObjectId,
     session: ClientSession
   ): Promise<IProduct | null> {
     return Product.findOneAndUpdate(
       { _id: productId, stock: { $gt: 0 } },
-      { $inc: { stock: -1, soldUnits: 1 } },
+      {
+        $inc: { stock: -1, soldUnits: 1 },
+        $push: { purchasedUsers: purchasedUser },
+      },
       { session, new: true }
-    );
-  }
-
-  async addPurchasedUser(
-    productId: string,
-    purchasedUser: Types.ObjectId,
-    session: ClientSession
-  ): Promise<void> {
-    await Product.updateOne(
-      { _id: productId },
-      { $push: { purchasedUsers: purchasedUser } },
-      { session }
     );
   }
 
@@ -75,5 +75,3 @@ class ProductModel {
     return startSession();
   }
 }
-
-export default ProductModel;

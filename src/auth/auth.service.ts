@@ -1,6 +1,5 @@
 import jwt from "jsonwebtoken";
 import bcrypt from "bcryptjs";
-import dotenv from "dotenv";
 import { Http } from "@status/codes";
 import { Inject, Service } from "typedi";
 
@@ -8,10 +7,7 @@ import { UserModel } from "../user/user.model";
 import { CreateUserDto, LoginUserDto } from "./dtos/auth.dto";
 import { HttpException } from "../common/utils/http.exception";
 import { JwtPayload } from "./interfaces/jwt-payload.interface";
-
-dotenv.config();
-
-const JWT_SECRET = process.env.JWT_SECRET as string;
+import { configService } from "../config";
 
 @Service()
 export class AuthService {
@@ -55,8 +51,8 @@ export class AuthService {
     };
 
     // Generate JWT token
-    const token = jwt.sign(payload, JWT_SECRET, {
-      expiresIn: "1hr",
+    const token = jwt.sign(payload, configService.JWT_SECRET, {
+      expiresIn: configService.JWT_EXPIRES_IN,
     });
     return token;
   }

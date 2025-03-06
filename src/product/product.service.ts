@@ -1,11 +1,11 @@
 import { Http } from "@status/codes";
+import { Types } from "mongoose";
+import { Inject, Service } from "typedi";
 
-import ProductModel from "./product.model";
+import { ProductModel } from "./product.model";
 import { HttpException } from "../common/utils/http.exception";
 import { IProduct } from "./product.schema";
 import { CreateProductDto } from "./dtos/product.dto";
-import { ClientSession, Types } from "mongoose";
-import { Inject, Service } from "typedi";
 import { LeaderboardService } from "../leaderboard/leaderboard.service";
 
 @Service()
@@ -27,6 +27,7 @@ export class ProductService {
   async getProducts(): Promise<IProduct[]> {
     return this.productModel.findAll();
   }
+
   async getProduct(productId: string): Promise<IProduct> {
     const product = await this.productModel.findById(productId);
     if (!product) {
@@ -81,11 +82,8 @@ export class ProductService {
     return this.getProduct(productId);
   }
 
-  async decrementProductStock(
-    productId: string,
-    session: ClientSession
-  ): Promise<Boolean> {
-    const product = await this.productModel.decrementStock(productId, session);
+  async decrementProductStock(productId: string): Promise<Boolean> {
+    const product = await this.productModel.decrementStock(productId);
     if (!product) {
       throw new HttpException(
         Http.BadRequest,
@@ -126,16 +124,20 @@ export class ProductService {
     session.startTransaction();
 
     try {
-      // Decrement stock and increment soldUnits within the session
-      await this.decrementProductStock(productId, session);
+      // Decrement stock and add purchased user within the session
+      const updatedProduct =
+        await this.productModel.decrementStockAndAddPurchasedUser(
+          productId,
+          new Types.ObjectId(userId),
+          session
+        );
 
-      // Add purchased user to the product
-      const purchasedUser = new Types.ObjectId(userId);
-      await this.productModel.addPurchasedUser(
-        productId,
-        purchasedUser,
-        session
-      );
+      if (!updatedProduct) {
+        throw new HttpException(
+          Http.BadRequest,
+          "Failed to decrement stock and add purchased user."
+        );
+      }
 
       // Add to leaderboard
       await this.leaderboardService.addToLeaderboard(

@@ -3,7 +3,7 @@ import { ICreateUser } from "./interfaces/user.inteface";
 import User, { IUser } from "./user.schema";
 
 @Service()
-class UserModel {
+export class UserModel {
   async create(data: ICreateUser): Promise<IUser> {
     return User.create(data);
   }
@@ -16,5 +16,3 @@ class UserModel {
     return User.findOne({ email });
   }
 }
-
-export { UserModel };

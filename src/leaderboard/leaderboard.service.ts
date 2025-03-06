@@ -1,9 +1,11 @@
 import { Inject, Service } from "typedi";
+import { ClientSession } from "mongoose";
+import { Http } from "@status/codes";
 
 import { ILeaderboard } from "./leaderboard.schema";
 import { LeaderboardModel } from "./leaderboard.model";
-import { ClientSession } from "mongoose";
 import { ICreateLeaderboard } from "./interfaces/leaderboard.interface";
+import { HttpException } from "../common/utils/http.exception";
 
 @Service()
 export class LeaderboardService {
@@ -20,7 +22,12 @@ export class LeaderboardService {
       purchasedTime: new Date(),
     };
 
-    return this.leaderboardModel.create(data, session);
+    const newLeaderboard = await this.leaderboardModel.create(data, session);
+    if (!newLeaderboard) {
+      throw new HttpException(Http.BadRequest, "Failed to add to leaderboard");
+    }
+
+    return newLeaderboard;
   }
 
   async getLeaderboard(): Promise<ILeaderboard[]> {
