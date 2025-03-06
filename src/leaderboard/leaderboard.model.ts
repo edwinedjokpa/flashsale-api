@@ -4,7 +4,7 @@ import Leaderboard, { ILeaderboard } from "./leaderboard.schema";
 import { ClientSession } from "mongoose";
 
 @Service()
-class LeaderboardModel {
+export class LeaderboardModel {
   async create(
     data: ICreateLeaderboard,
     session?: ClientSession
@@ -103,5 +103,3 @@ class LeaderboardModel {
     return Leaderboard.startSession();
   }
 }
-
-export { LeaderboardModel };
