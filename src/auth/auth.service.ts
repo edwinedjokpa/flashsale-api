@@ -5,7 +5,7 @@ import { Http } from "@status/codes";
 import { Inject, Service } from "typedi";
 
 import { UserModel } from "../user/user.model";
-import { CreateUserDto, LoginUserDto } from "./dto/auth.dto";
+import { CreateUserDto, LoginUserDto } from "./dtos/auth.dto";
 import { HttpException } from "../common/utils/http.exception";
 import { JwtPayload } from "./interfaces/jwt-payload.interface";
 

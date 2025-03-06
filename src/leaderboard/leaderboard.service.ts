@@ -3,7 +3,7 @@ import { Inject, Service } from "typedi";
 import { ILeaderboard } from "./leaderboard.schema";
 import { LeaderboardModel } from "./leaderboard.model";
 import { ClientSession } from "mongoose";
-import { ICreateLeaderboard } from "./interface/leaderboard.interface";
+import { ICreateLeaderboard } from "./interfaces/leaderboard.interface";
 
 @Service()
 export class LeaderboardService {

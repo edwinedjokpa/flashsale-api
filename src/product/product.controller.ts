@@ -2,7 +2,7 @@ import { NextFunction, Request, Response } from "express";
 import { Http } from "@status/codes";
 import { Inject, Service } from "typedi";
 
-import { createProductSchema, restockProductSchema } from "./dto/product.dto";
+import { createProductSchema, restockProductSchema } from "./dtos/product.dto";
 import { ProductService } from "./product.service";
 import { createResponse } from "../common/utils/response";
 import { RequestWithUser } from "user/interfaces/user.inteface";

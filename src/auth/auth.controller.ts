@@ -2,7 +2,7 @@ import { NextFunction, Request, Response } from "express";
 import { Http } from "@status/codes";
 import { Service } from "typedi";
 import { AuthService } from "./auth.service";
-import { createUserSchema, loginUserSchema } from "./dto/auth.dto";
+import { createUserSchema, loginUserSchema } from "./dtos/auth.dto";
 import { createResponse } from "../common/utils/response";
 import catchAsync from "../common/utils/catch-async";
 

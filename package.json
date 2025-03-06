@@ -1,11 +1,11 @@
 {
-  "name": "flashsale-system",
+  "name": "flashsale-api",
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
     "dev": "nodemon",
     "build": "tsc",
-    "start": "node dist/app.js",
+    "start": "node dist/main.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
