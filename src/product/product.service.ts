@@ -3,7 +3,7 @@ import { Http } from "@status/codes";
 import ProductModel from "./product.model";
 import { HttpException } from "../common/utils/http.exception";
 import { IProduct } from "./product.schema";
-import { CreateProductDto } from "./dto/product.dto";
+import { CreateProductDto } from "./dtos/product.dto";
 import { ClientSession, Types } from "mongoose";
 import { Inject, Service } from "typedi";
 import { LeaderboardService } from "../leaderboard/leaderboard.service";

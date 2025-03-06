@@ -1,5 +1,5 @@
 import { Service } from "typedi";
-import { ICreateLeaderboard } from "./interface/leaderboard.interface";
+import { ICreateLeaderboard } from "./interfaces/leaderboard.interface";
 import Leaderboard, { ILeaderboard } from "./leaderboard.schema";
 import { ClientSession } from "mongoose";
 
