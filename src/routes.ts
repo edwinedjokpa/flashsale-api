@@ -29,7 +29,7 @@ const setupRoutes = (app: Application): void => {
   app.use('/api/auth', rateLimiter, authRouter());
   app.use('/api/user', rateLimiter, userRouter());
   app.use('/api/products', rateLimiter, productRouter());
-  app.use('/api/flashsale', rateLimiter, flashsaleRouter());
+  app.use('/api/flashsales', rateLimiter, flashsaleRouter());
   app.use('/api/leaderboard', rateLimiter, leaderboardRouter());
 };
 
