@@ -1,9 +1,9 @@
-import winston, { Logger } from "winston";
-import { configService } from "../../config";
+import winston, { Logger } from 'winston';
+import { configService } from '../../config';
 
 // Create a logger
 const logger: Logger = winston.createLogger({
-  level: "info",
+  level: 'info',
   format: winston.format.combine(
     winston.format.colorize(),
     winston.format.timestamp(),

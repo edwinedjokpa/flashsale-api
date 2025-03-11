@@ -1,30 +1,27 @@
-import { Inject, Service } from "typedi";
-import { ClientSession } from "mongoose";
-import { Http } from "@status/codes";
+import { Inject, Service } from 'typedi';
+import { ClientSession } from 'mongoose';
+import { Http } from '@status/codes';
 
-import { ILeaderboard } from "./leaderboard.schema";
-import { LeaderboardModel } from "./leaderboard.model";
-import { ICreateLeaderboard } from "./interfaces/leaderboard.interface";
-import { HttpException } from "../common/utils/http.exception";
+import { ILeaderboard } from './leaderboard.schema';
+import { LeaderboardModel } from './leaderboard.model';
+import { HttpException } from '../common/utils/http.exception';
+import { CreateLeaderboardDto } from './dtos/leaderboard.dto';
 
 @Service()
 export class LeaderboardService {
   constructor(@Inject() private leaderboardModel: LeaderboardModel) {}
 
   async addToLeaderboard(
-    userId: string,
-    productId: string,
+    createLeaderboardDto: CreateLeaderboardDto,
     session: ClientSession
   ): Promise<ILeaderboard> {
-    const data: ICreateLeaderboard = {
-      userId,
-      productId,
-      purchasedTime: new Date(),
-    };
+    const newLeaderboard = await this.leaderboardModel.save(
+      { ...createLeaderboardDto, purchasedTime: new Date() },
+      session
+    );
 
-    const newLeaderboard = await this.leaderboardModel.create(data, session);
     if (!newLeaderboard) {
-      throw new HttpException(Http.BadRequest, "Failed to add to leaderboard");
+      throw new HttpException(Http.BadRequest, 'Failed to add to leaderboard');
     }
 
     return newLeaderboard;
@@ -32,5 +29,9 @@ export class LeaderboardService {
 
   async getLeaderboard(): Promise<ILeaderboard[]> {
     return this.leaderboardModel.getAll();
+  }
+
+  async getLeaderboardByFlashSaleId(flashSaleId: string) {
+    return this.leaderboardModel.getByFlashSaleId(flashSaleId);
   }
 }

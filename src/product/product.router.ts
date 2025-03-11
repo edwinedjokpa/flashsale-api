@@ -1,7 +1,7 @@
-import { Router } from "express";
-import { ProductController } from "./product.controller";
-import { authMiddleware } from "../common/middlewares/auth.middleware";
-import { Inject, Service } from "typedi";
+import { Router } from 'express';
+import { Container, Inject, Service } from 'typedi';
+
+import { ProductController } from './product.controller';
 
 @Service()
 export class ProductRouter {
@@ -11,33 +11,28 @@ export class ProductRouter {
     const router = Router();
 
     router.post(
-      "/",
+      '/',
       this.productController.createProduct.bind(this.productController)
     );
     router.get(
-      "/",
+      '/',
       this.productController.getProducts.bind(this.productController)
     );
     router.get(
-      "/:productId",
+      '/:productId',
       this.productController.getProduct.bind(this.productController)
     );
     router.put(
-      "/:productId",
+      '/:productId',
       this.productController.updateProduct.bind(this.productController)
     );
     router.delete(
-      "/:productId",
+      '/:productId',
       this.productController.deleteProduct.bind(this.productController)
     );
     router.put(
-      "/:productId/restock",
+      '/:productId/restock',
       this.productController.restockProduct.bind(this.productController)
-    );
-    router.post(
-      "/:productId/purchase",
-      authMiddleware,
-      this.productController.purchaseProduct.bind(this.productController)
     );
 
     return router;
@@ -45,4 +40,4 @@ export class ProductRouter {
 }
 
 // Export the router
-export default (container: any) => container.get(ProductRouter).getRouter();
+export default () => Container.get(ProductRouter).getRouter();

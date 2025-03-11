@@ -1,8 +1,8 @@
-import { Http } from "@status/codes";
-import { Inject, Service } from "typedi";
+import { Http } from '@status/codes';
+import { Inject, Service } from 'typedi';
 
-import { HttpException } from "../common/utils/http.exception";
-import { UserModel } from "./user.model";
+import { HttpException } from '../common/utils/http.exception';
+import { UserModel } from './user.model';
 
 @Service()
 export class UserService {
@@ -12,7 +12,7 @@ export class UserService {
     const user = await this.userModel.findOne(userId);
 
     if (!user) {
-      throw new HttpException(Http.NotFound, "User not found");
+      throw new HttpException(Http.NotFound, 'User not found');
     }
     return user;
   }

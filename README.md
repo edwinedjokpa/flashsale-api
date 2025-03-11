@@ -65,28 +65,38 @@ This is a high-performance backend system for handling real-time flash sales usi
 | POST   | `/api/auth/register` | Register a new user              |
 | POST   | `/api/auth/login`    | Authenticate and get a JWT token |
 
-### Products
-
-| Method | Endpoint                     | Description                 |
-| ------ | ---------------------------- | --------------------------- |
-| GET    | `/api/products`              | Get a list of all products  |
-| POST   | `/api/products`              | Create a new product        |
-| POST   | `/api/products/:id/purchase` | Buy a product on flase sale |
-| PUT    | `/api/products/:id`          | Update a product            |
-| PUT    | `/api/products/:id/restock`  | Update product stock        |
-| DELETE | `/api/products/:id`          | Delete a product            |
-
 ### Users
 
 | Method | Endpoint              | Description        |
 | ------ | --------------------- | ------------------ |
 | GET    | `/api/user/dashboard` | Get user dashboard |
 
+### Products
+
+| Method | Endpoint                    | Description                |
+| ------ | --------------------------- | -------------------------- |
+| GET    | `/api/products`             | Get a list of all products |
+| POST   | `/api/products`             | Create a new product       |
+| PUT    | `/api/products/:id`         | Update a product           |
+| DELETE | `/api/products/:id`         | Delete a product           |
+| PUT    | `/api/products/:id/restock` | Update product stock       |
+
+### Flash Sales
+
+| Method | Endpoint                          | Description                                |
+| ------ | --------------------------------- | ------------------------------------------ |
+| GET    | `/api/flashsales`                 | Get all flash sales events                 |
+| POST   | `/api/flashsales`                 | Create a flash sale event                  |
+| PUT    | `/api/flashsales/:id`             | Update a flash sale event                  |
+| DELETE | `/api/flashsales/:id`             | Delete a flash sale event                  |
+| POST   | `/api/flashsales/:id/purchase`    | Buy a product on flash sale                |
+| GET    | `/api/flashsales/:id/leaderboard` | Get the leaderboard for a flash sale event |
+
 ### Leaderboard
 
-| Method | Endpoint           | Description                                 |
-| ------ | ------------------ | ------------------------------------------- |
-| GET    | `/api/leaderboard` | Get a list of buyers in chronological order |
+| Method | Endpoint           | Description                                    |
+| ------ | ------------------ | ---------------------------------------------- |
+| GET    | `/api/leaderboard` | Get the leaderboard for all flash sales events |
 
 ## Handling Concurrency
 
