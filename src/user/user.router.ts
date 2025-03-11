@@ -1,7 +1,7 @@
-import { Router } from "express";
-import { Inject, Service } from "typedi";
-import { UserController } from "./user.controller";
-import { authMiddleware } from "../common/middlewares/auth.middleware";
+import { Router } from 'express';
+import { Container, Inject, Service } from 'typedi';
+import { UserController } from './user.controller';
+import { authMiddleware } from '../common/middlewares/auth.middleware';
 
 @Service()
 export class UserRouter {
@@ -11,7 +11,7 @@ export class UserRouter {
     const router = Router();
 
     router.get(
-      "/dashboard",
+      '/dashboard',
       authMiddleware,
       this.userController.getDashboard.bind(this.userController)
     );
@@ -21,4 +21,4 @@ export class UserRouter {
 }
 
 // Export the router
-export default (container: any) => container.get(UserRouter).getRouter();
+export default () => Container.get(UserRouter).getRouter();

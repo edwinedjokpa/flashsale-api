@@ -1,4 +1,14 @@
+# folders 
 node_modules
-.env
-app.log
+logs
+nginx
+
+# files
+Dockerfile
+compose.yaml
+README.Docker.md
 package-lock.json
+
+# dotfiles
+.env
+.dockerignore

@@ -1,17 +1,14 @@
-import jwt from "jsonwebtoken";
-import bcrypt from "bcryptjs";
-import dotenv from "dotenv";
-import { Http } from "@status/codes";
-import { Inject, Service } from "typedi";
+import jwt from 'jsonwebtoken';
+import bcrypt from 'bcryptjs';
+import { Http } from '@status/codes';
+import { Inject, Service } from 'typedi';
 
-import { UserModel } from "../user/user.model";
-import { CreateUserDto, LoginUserDto } from "./dtos/auth.dto";
-import { HttpException } from "../common/utils/http.exception";
-import { JwtPayload } from "./interfaces/jwt-payload.interface";
-
-dotenv.config();
-
-const JWT_SECRET = process.env.JWT_SECRET as string;
+import { UserModel } from '../user/user.model';
+import { LoginUserDto } from './dtos/auth.dto';
+import { CreateUserDto } from '../user/dtos/user.dto';
+import { HttpException } from '../common/utils/http.exception';
+import { JwtPayload } from './interfaces/jwt-payload.interface';
+import { configService } from '../config';
 
 @Service()
 export class AuthService {
@@ -21,15 +18,22 @@ export class AuthService {
 
     const existingUser = await this.userModel.findByEmail(email);
     if (existingUser) {
-      throw new HttpException(Http.Conflict, "User already exists");
+      throw new HttpException(Http.Conflict, 'User already exists');
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    const user = await this.userModel.create({
+    const user = await this.userModel.save({
       ...createUserDto,
       password: hashedPassword,
     });
+
+    if (!user) {
+      throw new HttpException(
+        Http.InternalServerError,
+        'Failed to create user account'
+      );
+    }
 
     return user;
   }
@@ -41,12 +45,12 @@ export class AuthService {
     // Check if user exists
     const user = await this.userModel.findByEmail(email);
     if (!user) {
-      throw new HttpException(Http.BadRequest, "Invalid credentials");
+      throw new HttpException(Http.BadRequest, 'Invalid credentials');
     }
 
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
-      throw new HttpException(Http.BadRequest, "Invalid credentials");
+      throw new HttpException(Http.BadRequest, 'Invalid credentials');
     }
 
     const payload: JwtPayload = {
@@ -55,9 +59,10 @@ export class AuthService {
     };
 
     // Generate JWT token
-    const token = jwt.sign(payload, JWT_SECRET, {
-      expiresIn: "1hr",
+    const accessToken = jwt.sign(payload, configService.JWT_SECRET, {
+      expiresIn: +configService.JWT_EXPIRES_IN,
     });
-    return token;
+
+    return accessToken;
   }
 }

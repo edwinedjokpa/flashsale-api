@@ -1,8 +1,6 @@
-import { Router } from "express";
-import { LeaderboardController } from "./leaderboard.controller";
-import { Inject, Service } from "typedi";
-
-const router = Router();
+import { Router } from 'express';
+import { LeaderboardController } from './leaderboard.controller';
+import { Container, Inject, Service } from 'typedi';
 
 @Service()
 export class LeaderboardRouter {
@@ -12,7 +10,7 @@ export class LeaderboardRouter {
     const router = Router();
 
     router.get(
-      "/",
+      '/',
       this.leaderboardController.getLeaderboard.bind(this.leaderboardController)
     );
 
@@ -21,4 +19,4 @@ export class LeaderboardRouter {
 }
 
 // Export the router
-export default (container: any) => container.get(LeaderboardRouter).getRouter();
+export default () => Container.get(LeaderboardRouter).getRouter();

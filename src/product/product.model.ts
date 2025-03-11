@@ -1,16 +1,13 @@
-import { Service } from "typedi";
-import { ICreateProduct } from "./interfaces/product.interface";
-import Product, { IProduct } from "./product.schema";
-import { ClientSession, startSession, Types } from "mongoose";
+import { Service } from 'typedi';
+import { ClientSession, startSession } from 'mongoose';
+
+import Product, { IProduct } from './product.schema';
+import { CreateProductDto } from './dtos/product.dto';
 
 @Service()
-class ProductModel {
-  async create(productData: ICreateProduct): Promise<IProduct> {
-    return Product.create(productData);
-  }
-
-  async findById(productId: string): Promise<IProduct | null> {
-    return Product.findById(productId);
+export class ProductModel {
+  async save(createProductDto: CreateProductDto): Promise<IProduct> {
+    return Product.create(createProductDto);
   }
 
   async findAll(page: number = 1, pageSize: number = 10): Promise<IProduct[]> {
@@ -19,11 +16,17 @@ class ProductModel {
       .limit(pageSize);
   }
 
+  async findOne(productId: string): Promise<IProduct | null> {
+    return Product.findById(productId);
+  }
+
   async update(
     productId: string,
-    data: Partial<IProduct>
+    updateProductDto: Partial<CreateProductDto>
   ): Promise<IProduct | null> {
-    return Product.findByIdAndUpdate(productId, data, { new: true });
+    return Product.findByIdAndUpdate(productId, updateProductDto, {
+      new: true,
+    });
   }
 
   async delete(productId: string): Promise<IProduct | null> {
@@ -52,28 +55,7 @@ class ProductModel {
     );
   }
 
-  async addPurchasedUser(
-    productId: string,
-    purchasedUser: Types.ObjectId,
-    session: ClientSession
-  ): Promise<void> {
-    await Product.updateOne(
-      { _id: productId },
-      { $push: { purchasedUsers: purchasedUser } },
-      { session }
-    );
-  }
-
-  async hasUserPurchased(productId: string, userId: string): Promise<boolean> {
-    const product = await Product.findById(productId);
-    if (!product) return false;
-
-    return product.purchasedUsers.includes(userId);
-  }
-
   async startSession() {
     return startSession();
   }
 }
-
-export default ProductModel;

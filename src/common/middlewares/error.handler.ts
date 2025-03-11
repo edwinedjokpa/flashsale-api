@@ -1,12 +1,10 @@
-import { Request, Response, NextFunction } from "express";
-import { HttpException } from "../utils/http.exception";
+import { Request, Response } from 'express';
+import { Http } from '@status/codes';
 
-export const globalErrorHandler = (
-  err: Error,
-  req: Request,
-  res: Response,
-  next: NextFunction
-) => {
+import { HttpException } from '../utils/http.exception';
+import { configService } from '../../config';
+
+export const globalErrorHandler = (err: Error, req: Request, res: Response) => {
   if (err instanceof HttpException) {
     res.status(err.status).json({
       success: false,
@@ -17,11 +15,11 @@ export const globalErrorHandler = (
     return;
   }
 
-  res.status(500).json({
+  res.status(Http.InternalServerError).json({
     success: false,
-    status: 500,
-    message: err.message || "Internal Server Error!",
-    stack: err.stack || "",
+    status: Http.InternalServerError,
+    message: err.message || 'Internal Server Error!',
+    stack: configService.NODE_ENV === 'development' ? err.stack : undefined,
   });
 
   return;

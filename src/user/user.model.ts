@@ -1,11 +1,11 @@
-import { Service } from "typedi";
-import { ICreateUser } from "./interfaces/user.inteface";
-import User, { IUser } from "./user.schema";
+import { Service } from 'typedi';
+import User, { IUser } from './user.schema';
+import { CreateUserDto } from './dtos/user.dto';
 
 @Service()
-class UserModel {
-  async create(data: ICreateUser): Promise<IUser> {
-    return User.create(data);
+export class UserModel {
+  async save(createUserDto: CreateUserDto): Promise<IUser> {
+    return User.create(createUserDto);
   }
 
   async findOne(id: string): Promise<IUser | null> {
@@ -16,5 +16,3 @@ class UserModel {
     return User.findOne({ email });
   }
 }
-
-export { UserModel };

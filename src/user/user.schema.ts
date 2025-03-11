@@ -1,4 +1,4 @@
-import { Schema, model, Document } from "mongoose";
+import { Schema, model, Document } from 'mongoose';
 
 export interface IUser extends Document {
   firstName: string;
@@ -23,6 +23,6 @@ userSchema.index({ firstName: 1, lastName: 1 });
 
 userSchema.index({ email: 1, password: 1 });
 
-const User = model<IUser>("User", userSchema);
+const User = model<IUser>('User', userSchema);
 
 export default User;

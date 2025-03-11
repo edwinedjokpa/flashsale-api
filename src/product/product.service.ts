@@ -1,36 +1,38 @@
-import { Http } from "@status/codes";
+import { Http } from '@status/codes';
+import { ClientSession } from 'mongoose';
+import { Inject, Service } from 'typedi';
 
-import ProductModel from "./product.model";
-import { HttpException } from "../common/utils/http.exception";
-import { IProduct } from "./product.schema";
-import { CreateProductDto } from "./dtos/product.dto";
-import { ClientSession, Types } from "mongoose";
-import { Inject, Service } from "typedi";
-import { LeaderboardService } from "../leaderboard/leaderboard.service";
+import { ProductModel } from './product.model';
+import { HttpException } from '../common/utils/http.exception';
+import { IProduct } from './product.schema';
+import { CreateProductDto } from './dtos/product.dto';
 
 @Service()
 export class ProductService {
-  constructor(
-    @Inject() private productModel: ProductModel,
-    @Inject() private leaderboardService: LeaderboardService
-  ) {}
+  constructor(@Inject() private productModel: ProductModel) {}
   async createProduct(createProductDto: CreateProductDto): Promise<IProduct> {
     const roundedPrice = Math.round(createProductDto.price * 100) / 100;
-    const formattedPrice = roundedPrice.toFixed(2);
 
-    return this.productModel.create({
+    const product = await this.productModel.save({
       ...createProductDto,
-      price: parseFloat(formattedPrice),
+      price: roundedPrice,
     });
+
+    if (!product) {
+      throw new HttpException(Http.BadRequest, 'Failed to create product');
+    }
+
+    return product;
   }
 
   async getProducts(): Promise<IProduct[]> {
     return this.productModel.findAll();
   }
+
   async getProduct(productId: string): Promise<IProduct> {
-    const product = await this.productModel.findById(productId);
+    const product = await this.productModel.findOne(productId);
     if (!product) {
-      throw new HttpException(Http.NotFound, "Product not found!");
+      throw new HttpException(Http.NotFound, 'Product not found!');
     }
 
     return product;
@@ -44,8 +46,7 @@ export class ProductService {
 
     if (updateProductDto.price) {
       const roundedPrice = Math.round(updateProductDto.price * 100) / 100;
-      const formattedPrice = roundedPrice.toFixed(2);
-      updateProductDto.price = parseFloat(formattedPrice);
+      updateProductDto.price = roundedPrice;
     }
 
     const updatedProduct = await this.productModel.update(
@@ -54,7 +55,7 @@ export class ProductService {
     );
 
     if (!updatedProduct) {
-      throw new HttpException(Http.BadRequest, "Failed to update product");
+      throw new HttpException(Http.BadRequest, 'Failed to update product');
     }
 
     return await this.getProduct(productId);
@@ -74,7 +75,7 @@ export class ProductService {
     if (!product) {
       throw new HttpException(
         Http.BadRequest,
-        "Failed to increment product stock"
+        'Failed to increment product stock'
       );
     }
 
@@ -84,76 +85,15 @@ export class ProductService {
   async decrementProductStock(
     productId: string,
     session: ClientSession
-  ): Promise<Boolean> {
+  ): Promise<boolean> {
     const product = await this.productModel.decrementStock(productId, session);
     if (!product) {
       throw new HttpException(
         Http.BadRequest,
-        "Failed to decrement product stock"
+        'Failed to decrement product stock'
       );
     }
     return true;
-  }
-
-  async purchaseProduct(productId: string, userId: string): Promise<IProduct> {
-    const product = await this.getProduct(productId);
-
-    // Check sales start time
-    if (new Date().toISOString() < product.saleStartTime) {
-      throw new HttpException(Http.BadRequest, "Sale has not started yet.");
-    }
-
-    // Check product stock
-    if (product.stock <= 0) {
-      throw new HttpException(
-        Http.BadRequest,
-        "Sales have ended as the product is out of stock."
-      );
-    }
-
-    const userHasPurchased = await this.productModel.hasUserPurchased(
-      productId,
-      userId
-    );
-    if (userHasPurchased) {
-      throw new HttpException(
-        Http.BadRequest,
-        "You have already purchased this product."
-      );
-    }
-
-    const session = await this.productModel.startSession();
-    session.startTransaction();
-
-    try {
-      // Decrement stock and increment soldUnits within the session
-      await this.decrementProductStock(productId, session);
-
-      // Add purchased user to the product
-      const purchasedUser = new Types.ObjectId(userId);
-      await this.productModel.addPurchasedUser(
-        productId,
-        purchasedUser,
-        session
-      );
-
-      // Add to leaderboard
-      await this.leaderboardService.addToLeaderboard(
-        userId,
-        productId,
-        session
-      );
-
-      // Commit transaction
-      await session.commitTransaction();
-      session.endSession();
-
-      return await this.getProduct(productId);
-    } catch (error) {
-      await session.abortTransaction();
-      session.endSession();
-      throw error;
-    }
   }
 
   // Add other methods as needed
