@@ -4,7 +4,7 @@ import { Inject, Service } from 'typedi';
 
 import { createProductSchema, restockProductSchema } from './dtos/product.dto';
 import { ProductService } from './product.service';
-import { createResponse } from '../common/utils/response';
+import AppResponse from '../common/utils/response';
 import catchAsync from '../common/utils/catch-async';
 
 @Service()
@@ -19,43 +19,26 @@ export class ProductController {
       return res
         .status(Http.BadRequest)
         .json(
-          createResponse(
-            false,
-            Http.BadRequest,
-            'Validation failed',
-            parseResult.error.format()
-          )
+          AppResponse.Error('Validation failed', parseResult.error.format())
         );
     }
 
     const createProductDto = parseResult.data;
-    const product = await this.productService.createProduct(createProductDto);
-    return res.status(Http.Created).json(
-      createResponse(true, Http.Created, 'Product created successfully', {
-        product,
-      })
-    );
+    const response = await this.productService.createProduct(createProductDto);
+    return res.status(Http.Created).json(response);
   });
 
   // Get products
   public getProducts = catchAsync(async (req: Request, res: Response) => {
-    const products = await this.productService.getProducts();
-    return res.status(Http.Ok).json(
-      createResponse(true, Http.Ok, 'Products fetched successfully', {
-        products,
-      })
-    );
+    const response = await this.productService.getProducts();
+    return res.status(Http.Ok).json(response);
   });
 
   // Get a product
   public getProduct = catchAsync(async (req: Request, res: Response) => {
     const productId = req.params.productId;
-    const product = await this.productService.getProduct(productId);
-    return res.status(Http.Ok).json(
-      createResponse(true, Http.Ok, 'Product fetched successfully', {
-        product,
-      })
-    );
+    const response = await this.productService.getProduct(productId);
+    return res.status(Http.Ok).json(response);
   });
 
   // Update a product
@@ -68,34 +51,23 @@ export class ProductController {
       return res
         .status(Http.BadRequest)
         .json(
-          createResponse(
-            false,
-            Http.BadRequest,
-            'Validation failed',
-            parseResult.error.format()
-          )
+          AppResponse.Error('Validation failed', parseResult.error.format())
         );
     }
 
     const updateProductDto = parseResult.data;
-    const product = await this.productService.updateProduct(
+    const response = await this.productService.updateProduct(
       productId,
       updateProductDto
     );
-    return res.status(Http.Ok).json(
-      createResponse(true, Http.Ok, 'Product updated successfully', {
-        product,
-      })
-    );
+    return res.status(Http.Ok).json(response);
   });
 
   // Delete a product
   public deleteProduct = catchAsync(async (req: Request, res: Response) => {
     const productId = req.params.productId;
-    await this.productService.deleteProduct(productId);
-    return res
-      .status(Http.Ok)
-      .json(createResponse(true, Http.Ok, 'Product deleted successfully'));
+    const response = await this.productService.deleteProduct(productId);
+    return res.status(Http.Ok).json(response);
   });
 
   //Restock a product
@@ -107,24 +79,15 @@ export class ProductController {
       return res
         .status(Http.BadRequest)
         .json(
-          createResponse(
-            false,
-            Http.BadRequest,
-            'Validation failed',
-            parseResult.error.format()
-          )
+          AppResponse.Error('Validation failed', parseResult.error.format())
         );
     }
 
     const stock = parseResult.data.stock;
-    const product = await this.productService.incrementProductStock(
+    const response = await this.productService.incrementProductStock(
       productId,
       stock
     );
-    return res.status(Http.Ok).json(
-      createResponse(true, Http.Ok, 'Product restocked successfully', {
-        product,
-      })
-    );
+    return res.status(Http.Ok).json(response);
   });
 }

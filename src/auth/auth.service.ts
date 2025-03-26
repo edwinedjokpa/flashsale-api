@@ -9,6 +9,7 @@ import { CreateUserDto } from '../user/dtos/user.dto';
 import { HttpException } from '../common/utils/http.exception';
 import { JwtPayload } from './interfaces/jwt-payload.interface';
 import { configService } from '../config';
+import AppResponse from '../common/utils/response';
 
 @Service()
 export class AuthService {
@@ -35,11 +36,12 @@ export class AuthService {
       );
     }
 
-    return user;
+    const data = { user };
+    return AppResponse.Success('User registered successfully', data);
   }
 
   // Login user
-  async login(loginUserDto: LoginUserDto): Promise<string> {
+  async login(loginUserDto: LoginUserDto) {
     const { email, password } = loginUserDto;
 
     // Check if user exists
@@ -63,6 +65,8 @@ export class AuthService {
       expiresIn: +configService.JWT_EXPIRES_IN,
     });
 
-    return accessToken;
+    const data = { accessToken };
+
+    return AppResponse.Success('User login successful', data);
   }
 }

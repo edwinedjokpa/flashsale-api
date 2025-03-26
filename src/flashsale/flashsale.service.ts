@@ -1,13 +1,13 @@
 import { Inject, Service } from 'typedi';
 import { Http } from '@status/codes';
 
+import AppResponse from '../common/utils/response';
 import { FlashSaleModel } from './flashsale.model';
 import { IFlashSale } from './flashsale.schema';
-import { CreateFlashSaleDto } from './dtos/flashsale.dto';
+import { CreateFlashSaleDto, UpdateFlashSaleDto } from './dtos/flashsale.dto';
 import { HttpException } from '../common/utils/http.exception';
 import { ProductService } from '../product/product.service';
 import { LeaderboardService } from '../leaderboard/leaderboard.service';
-import { Types } from 'mongoose';
 
 @Service()
 export class FlashSaleService {
@@ -17,16 +17,10 @@ export class FlashSaleService {
     @Inject() private readonly leaderboardService: LeaderboardService
   ) {}
 
-  async createFlashSale(
-    createFlashSaleDto: CreateFlashSaleDto
-  ): Promise<IFlashSale> {
-    const product = await this.productService.getProduct(
+  async createFlashSale(createFlashSaleDto: CreateFlashSaleDto) {
+    const product = await this.productService.getProductById(
       createFlashSaleDto.productId
     );
-
-    if (!product) {
-      throw new HttpException(Http.BadRequest, 'Product not found');
-    }
 
     const flashSale = await this.flashSaleModel.save({
       ...createFlashSaleDto,
@@ -37,65 +31,75 @@ export class FlashSaleService {
       throw new HttpException(Http.BadRequest, 'Failed to create flash sale');
     }
 
-    return flashSale;
+    const data = { flashSale };
+    return AppResponse.Success('Flashsale event created successfully', data);
   }
 
-  async getFlashSales(): Promise<IFlashSale[]> {
-    return this.flashSaleModel.findAll();
+  async getFlashSales() {
+    const flashSales = await this.flashSaleModel.findAll();
+
+    const data = { flashSales };
+    return AppResponse.Success('Flashsale events retrieved successfully', data);
   }
 
-  async getFlashSale(flashSaleId: string): Promise<IFlashSale> {
-    const flashSale = await this.flashSaleModel.findOne(flashSaleId);
+  async getFlashSale(flashSaleId: string) {
+    const flashSale = await this.getFlashSaleById(flashSaleId);
 
-    if (!flashSale) {
-      throw new HttpException(Http.NotFound, 'Flash sale not found');
-    }
-
-    return flashSale;
+    const data = { flashSale };
+    return AppResponse.Success('Flashsale event retrieved successfully', data);
   }
 
   async updateFlashSale(
     flashSaleId: string,
-    updateFlashSaleDto: CreateFlashSaleDto
-  ): Promise<IFlashSale> {
-    await this.getFlashSale(flashSaleId);
+    updateFlashSaleDto: UpdateFlashSaleDto
+  ) {
+    await this.getFlashSaleById(flashSaleId);
 
     const updatedFlashSale = await this.flashSaleModel.update(
       flashSaleId,
       updateFlashSaleDto
     );
+
     if (!updatedFlashSale) {
-      throw new HttpException(Http.BadRequest, 'Failed to update flash sale');
+      throw new HttpException(Http.BadRequest, 'Failed to update flashsale');
     }
 
-    return updatedFlashSale;
+    const data = { flashSale: updatedFlashSale };
+    return AppResponse.Success('Flashsale event updated successfully', data);
   }
 
-  async deleteFlashSale(flashSaleId: string): Promise<void> {
-    await this.getFlashSale(flashSaleId);
+  async deleteFlashSale(flashSaleId: string) {
+    await this.getFlashSaleById(flashSaleId);
     await this.flashSaleModel.delete(flashSaleId);
+
+    return AppResponse.Success('Flashsale event deleted successfully');
   }
 
   async purchaseProduct(flashSaleId: string, userId: string) {
-    const flashSale = await this.getFlashSale(flashSaleId);
+    const flashSale = await this.getFlashSaleById(flashSaleId);
     const productId = flashSale.productId.toString();
 
     // Check sales start time
     if (new Date() < flashSale.saleStartTime) {
-      throw new HttpException(Http.BadRequest, 'Sale has not started yet.');
+      throw new HttpException(
+        Http.BadRequest,
+        'Flasesale event has not started yet.'
+      );
     }
 
     // Check product stock
     if (flashSale.remainingUnits <= 0) {
       throw new HttpException(
         Http.BadRequest,
-        'Sales have ended as the product is out of stock.'
+        'Flashsale event has ended as the product is out of stock.'
       );
     }
 
-    const userHasPurchased = await this.flashSaleModel.hasUserPurchased(
-      flashSaleId,
-      userId
+    const leaderboard =
+      await this.leaderboardService.getLeaderboardForFlashSale(flashSaleId);
+
+    const userHasPurchased = leaderboard.some(
+      (entry) => entry.userId.toString() === userId.toString()
     );
 
     if (userHasPurchased) {
@@ -110,12 +114,10 @@ export class FlashSaleService {
 
     try {
       // Decrement stock and add purchased user within the session
-      const updatedSalesEvent =
-        await this.flashSaleModel.decrementUnitsAndAddPurchasedUser(
-          flashSaleId,
-          new Types.ObjectId(userId),
-          session
-        );
+      const updatedSalesEvent = await this.flashSaleModel.decrementUnits(
+        flashSaleId,
+        session
+      );
 
       if (!updatedSalesEvent) {
         throw new HttpException(
@@ -145,7 +147,22 @@ export class FlashSaleService {
     }
   }
 
-  async getFlashSaleLeaderboard(flashSaleId: string): Promise<unknown[]> {
-    return this.leaderboardService.getLeaderboardByFlashSaleId(flashSaleId);
+  async getFlashSaleLeaderboard(flashSaleId: string) {
+    const leaderboard =
+      await this.leaderboardService.getLeaderboardByFlashSaleId(flashSaleId);
+
+    const data = { leaderboard };
+    return AppResponse.Success('Leaderboard fetched successfully', data);
+  }
+
+  // Other methods
+  async getFlashSaleById(flashSaleId: string): Promise<IFlashSale> {
+    const flashSale = await this.flashSaleModel.findOne(flashSaleId);
+
+    if (!flashSale) {
+      throw new HttpException(Http.NotFound, 'Flash sale not found');
+    }
+
+    return flashSale;
   }
 }
