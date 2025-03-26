@@ -230,6 +230,11 @@ export class LeaderboardModel {
     return cleanData;
   }
 
+  async getLeaderboardByFlashSaleId(flashSaleId: string) {
+    const data = await Leaderboard.find({ flashSaleId });
+    return data;
+  }
+
   startSession() {
     return Leaderboard.startSession();
   }

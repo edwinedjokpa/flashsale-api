@@ -4,8 +4,8 @@ import { Service } from 'typedi';
 import { AuthService } from './auth.service';
 import { createUserSchema } from '../user/dtos/user.dto';
 import { loginUserSchema } from './dtos/auth.dto';
-import { createResponse } from '../common/utils/response';
 import catchAsync from '../common/utils/catch-async';
+import AppResponse from '../common/utils/response';
 
 @Service()
 export class AuthController {
@@ -14,29 +14,17 @@ export class AuthController {
   public register = catchAsync(async (req: Request, res: Response) => {
     const parseResult = createUserSchema.safeParse(req.body);
 
-    // If validation fails, return the errors
     if (!parseResult.success) {
       return res
         .status(Http.BadRequest)
         .json(
-          createResponse(
-            false,
-            Http.BadRequest,
-            'Validation failed',
-            parseResult.error.format()
-          )
+          AppResponse.Error('Validation failed', parseResult.error.format())
         );
     }
 
     const createUserDto = parseResult.data;
-
-    // Proceed with the registration
-    const user = await this.authService.register(createUserDto);
-    return res.status(Http.Created).json(
-      createResponse(true, Http.Created, 'User registered successfully', {
-        user,
-      })
-    );
+    const response = await this.authService.register(createUserDto);
+    return res.status(Http.Created).json(response);
   });
 
   public login = catchAsync(async (req: Request, res: Response) => {
@@ -46,22 +34,12 @@ export class AuthController {
       return res
         .status(Http.BadRequest)
         .json(
-          createResponse(
-            false,
-            Http.BadRequest,
-            'Validation failed',
-            parseResult.error.format()
-          )
+          AppResponse.Error('Validation failed', parseResult.error.format())
         );
     }
 
     const loginUserDto = parseResult.data;
-
-    const accessToken = await this.authService.login(loginUserDto);
-    return res.status(Http.Ok).json(
-      createResponse(true, Http.Ok, 'User login successful', {
-        accessToken,
-      })
-    );
+    const response = await this.authService.login(loginUserDto);
+    return res.status(Http.Ok).json(response);
   });
 }

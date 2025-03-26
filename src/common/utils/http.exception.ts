@@ -1,12 +1,14 @@
+import AppResponse from './response';
+
 export class HttpException extends Error {
-  status: number;
-
-  constructor(status: number, message: string) {
+  statusCode: number;
+  message!: string;
+  constructor(statusCode: number, message: string) {
     super(message);
-    this.status = status;
+    this.statusCode = statusCode;
+  }
 
-    if (Error.captureStackTrace) {
-      Error.captureStackTrace(this, HttpException);
-    }
+  toResponse() {
+    return AppResponse.Error(this.message);
   }
 }

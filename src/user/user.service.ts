@@ -1,8 +1,9 @@
 import { Http } from '@status/codes';
 import { Inject, Service } from 'typedi';
 
-import { HttpException } from '../common/utils/http.exception';
 import { UserModel } from './user.model';
+import { HttpException } from '../common/utils/http.exception';
+import AppResponse from '../common/utils/response';
 
 @Service()
 export class UserService {
@@ -14,6 +15,12 @@ export class UserService {
     if (!user) {
       throw new HttpException(Http.NotFound, 'User not found');
     }
-    return user;
+
+    const data = { user };
+
+    return AppResponse.Success(
+      'User dashboard data fetched successfully',
+      data
+    );
   }
 }

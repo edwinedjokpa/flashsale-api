@@ -1,7 +1,7 @@
 import { Service } from 'typedi';
 import FlashSale, { IFlashSale } from './flashsale.schema';
 import { CreateFlashSaleDto } from './dtos/flashsale.dto';
-import { ClientSession, Types } from 'mongoose';
+import { ClientSession } from 'mongoose';
 
 @Service()
 export class FlashSaleModel {
@@ -32,29 +32,17 @@ export class FlashSaleModel {
     return FlashSale.findByIdAndDelete(flashSaleId).exec();
   }
 
-  async decrementUnitsAndAddPurchasedUser(
+  async decrementUnits(
     flashSaleId: string,
-    purchasedUser: Types.ObjectId,
     session: ClientSession
   ): Promise<IFlashSale | null> {
     return FlashSale.findOneAndUpdate(
       { _id: flashSaleId, remainingUnits: { $gt: 0 } },
       {
         $inc: { remainingUnits: -1, soldUnits: 1 },
-        $push: { purchasedUsers: purchasedUser },
       },
       { session, new: true }
     );
-  }
-
-  async hasUserPurchased(
-    flashSaleId: string,
-    userId: string
-  ): Promise<boolean> {
-    const flashSale = await FlashSale.findById(flashSaleId).exec();
-    if (!flashSale) return false;
-
-    return flashSale.purchasedUsers.includes(userId);
   }
 
   startSession() {

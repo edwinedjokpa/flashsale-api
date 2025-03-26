@@ -3,8 +3,11 @@ import { Request, Response } from 'express';
 import { Http } from '@status/codes';
 
 import { FlashSaleService } from './flashsale.service';
-import { createFlashSaleSchema } from './dtos/flashsale.dto';
-import { createResponse } from '../common/utils/response';
+import {
+  createFlashSaleSchema,
+  updateFlashSaleSchema,
+} from './dtos/flashsale.dto';
+import AppResponse from '../common/utils/response';
 import catchAsync from '../common/utils/catch-async';
 import { RequestWithUser } from '../user/interfaces/user.inteface';
 
@@ -20,73 +23,56 @@ export class FlashSaleController {
       return res
         .status(Http.BadRequest)
         .json(
-          createResponse(
-            false,
-            Http.BadRequest,
-            'Validation failed',
-            parseResult.error.format()
-          )
+          AppResponse.Error('Validation failed', parseResult.error.format())
         );
     }
 
     const createFlashSaleDto = parseResult.data;
-    const flashSale =
+    const response =
       await this.flashSaleService.createFlashSale(createFlashSaleDto);
-    return res.status(Http.Created).json(
-      createResponse(
-        true,
-        Http.Created,
-        'Flash sale event created successfully',
-        {
-          flashSale,
-        }
-      )
-    );
+    return res.status(Http.Created).json(response);
   });
 
   // Get flash sale events
   public getFlashSales = catchAsync(async (req: Request, res: Response) => {
-    const flashSales = await this.flashSaleService.getFlashSales();
-    return res.status(Http.Ok).json(
-      createResponse(true, Http.Ok, 'Flash sales fetched successfully', {
-        flashSales,
-      })
-    );
+    const response = await this.flashSaleService.getFlashSales();
+    return res.status(Http.Ok).json(response);
   });
 
   // Get a flash sale event
   public getFlashSale = catchAsync(async (req: Request, res: Response) => {
     const flashSaleId = req.params.flashSaleId;
-    const flashSale = await this.flashSaleService.getFlashSale(flashSaleId);
-    return res.status(Http.Ok).json(
-      createResponse(true, Http.Ok, 'Flash sale fetched successfully', {
-        flashSale,
-      })
-    );
+
+    const response = await this.flashSaleService.getFlashSale(flashSaleId);
+    return res.status(Http.Ok).json(response);
   });
 
   // Update a flash sale event
   public updateFlashSale = catchAsync(async (req: Request, res: Response) => {
     const flashSaleId = req.params.flashSaleId;
+
+    const parseResult = updateFlashSaleSchema.safeParse(req.body);
+    if (!parseResult.success) {
+      return res
+        .status(Http.BadRequest)
+        .json(
+          AppResponse.Error('Validation failed', parseResult.error.format())
+        );
+    }
+
     const updateFlashSaleDto = req.body;
-    const flashSale = await this.flashSaleService.updateFlashSale(
+    const response = await this.flashSaleService.updateFlashSale(
       flashSaleId,
       updateFlashSaleDto
     );
-    return res.status(Http.Ok).json(
-      createResponse(true, Http.Ok, 'Flash sale updated successfully', {
-        flashSale,
-      })
-    );
+    return res.status(Http.Ok).json(response);
   });
 
   // Delete a flash sale event
   public deleteFlashSale = catchAsync(async (req: Request, res: Response) => {
     const flashSaleId = req.params.flashSaleId;
-    await this.flashSaleService.deleteFlashSale(flashSaleId);
-    return res
-      .status(Http.Ok)
-      .json(createResponse(true, Http.Ok, 'Flash sale deleted successfully'));
+    const response = await this.flashSaleService.deleteFlashSale(flashSaleId);
+    return res.status(Http.Ok).json(response);
   });
 
   // Purchase a product
@@ -97,21 +83,15 @@ export class FlashSaleController {
       if (!req.user) {
         return res
           .status(Http.Unauthorized)
-          .json(
-            createResponse(false, Http.Unauthorized, 'User not authenticated')
-          );
+          .json(AppResponse.Error('User not authenticated'));
       }
 
-      const flashSale = await this.flashSaleService.purchaseProduct(
+      const response = await this.flashSaleService.purchaseProduct(
         flashSaleId,
         req.user.id
       );
 
-      return res.status(Http.Ok).json(
-        createResponse(true, Http.Ok, 'Product purchase successful', {
-          flashSale,
-        })
-      );
+      return res.status(Http.Ok).json(response);
     }
   );
 
@@ -119,13 +99,10 @@ export class FlashSaleController {
   public getFlashSaleLeaderboard = catchAsync(
     async (req: Request, res: Response) => {
       const flashSaleId = req.params.flashSaleId;
-      const leaderboard =
+
+      const response =
         await this.flashSaleService.getFlashSaleLeaderboard(flashSaleId);
-      return res.status(Http.Ok).json(
-        createResponse(true, Http.Ok, 'Leaderboard data fetched successfully', {
-          leaderboard,
-        })
-      );
+      return res.status(Http.Ok).json(response);
     }
   );
 }
