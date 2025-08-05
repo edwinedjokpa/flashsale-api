@@ -5,11 +5,11 @@ import compression from 'compression';
 import cors from 'cors';
 
 // Import the route setup function
-import setupRoutes from './routes';
+import setupRoutes from '../routes';
 
 // Middlewares
-import { globalRequestHandler } from './common/middlewares/request.handler';
-import { globalErrorHandler } from './common/middlewares/error.handler';
+import { globalRequestHandler } from '../common/middlewares/request.handler';
+import { globalErrorHandler } from '../common/middlewares/error.handler';
 
 const app: Application = express();
 

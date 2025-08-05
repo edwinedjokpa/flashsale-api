@@ -139,7 +139,8 @@ export class FlashSaleService {
       await session.commitTransaction();
       session.endSession();
 
-      return await this.flashSaleModel.findOne(flashSaleId);
+      const data = { flashSale: updatedSalesEvent };
+      return AppResponse.Success('Product purchased successfully', data);
     } catch (error) {
       await session.abortTransaction();
       session.endSession();

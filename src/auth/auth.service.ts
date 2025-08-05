@@ -14,13 +14,13 @@ import AppResponse from '../common/utils/response';
 @Service()
 export class AuthService {
   constructor(@Inject() private userModel: UserModel) {}
+
   async register(createUserDto: CreateUserDto) {
     const { email, password } = createUserDto;
 
     const existingUser = await this.userModel.findByEmail(email);
-    if (existingUser) {
+    if (existingUser)
       throw new HttpException(Http.Conflict, 'User already exists');
-    }
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
@@ -29,12 +29,11 @@ export class AuthService {
       password: hashedPassword,
     });
 
-    if (!user) {
+    if (!user)
       throw new HttpException(
         Http.InternalServerError,
         'Failed to create user account'
       );
-    }
 
     const data = { user };
     return AppResponse.Success('User registered successfully', data);
@@ -46,14 +45,11 @@ export class AuthService {
 
     // Check if user exists
     const user = await this.userModel.findByEmail(email);
-    if (!user) {
-      throw new HttpException(Http.BadRequest, 'Invalid credentials');
-    }
+    if (!user) throw new HttpException(Http.BadRequest, 'Invalid credentials');
 
-    const isMatch = await bcrypt.compare(password, user.password);
-    if (!isMatch) {
+    const isValid = await bcrypt.compare(password, user.password);
+    if (!isValid)
       throw new HttpException(Http.BadRequest, 'Invalid credentials');
-    }
 
     const payload: JwtPayload = {
       id: user.id as string,
@@ -66,7 +62,6 @@ export class AuthService {
     });
 
     const data = { accessToken };
-
     return AppResponse.Success('User login successful', data);
   }
 }
