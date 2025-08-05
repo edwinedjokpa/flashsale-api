@@ -1,11 +1,11 @@
 import { Application } from 'express';
 import rateLimit from 'express-rate-limit';
 
-import authRouter from './auth/auth.router';
-import userRouter from './user/user.router';
-import productRouter from './product/product.router';
-import flashsaleRouter from './flashsale/flashsale.router';
-import leaderboardRouter from './leaderboard/leaderboard.router';
+import authRouter from '../auth/auth.router';
+import userRouter from '../user/user.router';
+import productRouter from '../product/product.router';
+import flashsaleRouter from '../flashsale/flashsale.router';
+import leaderboardRouter from '../leaderboard/leaderboard.router';
 
 // Define the rate limiter middleware
 const rateLimiter = rateLimit({
