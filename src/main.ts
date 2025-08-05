@@ -1,17 +1,17 @@
-import mongoose from 'mongoose';
-import app from './app';
+import app from './core/app';
+import connectToDatabase from './core/db';
 import logger from './common/utils/logger';
 import { configService } from './config';
 
-// MongoDB connection
-mongoose
-  .connect(configService.MONGODB_URI)
-  .then(() => {
-    logger.info('MongoDB connected...');
-  })
-  .catch((error) => {
-    logger.error('MongoDB connection error:', error);
-  });
+// Connect to the database
+(async () => {
+  try {
+    await connectToDatabase(configService.MONGODB_URI);
+  } catch (error) {
+    logger.error('Failed to connect to the database:', error);
+    process.exit(1);
+  }
+})();
 
 // Start server
 app.listen(configService.PORT, () => {

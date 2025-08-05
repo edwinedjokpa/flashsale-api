@@ -10,7 +10,7 @@ import leaderboardRouter from './leaderboard/leaderboard.router';
 // Define the rate limiter middleware
 const rateLimiter = rateLimit({
   windowMs: 1 * 60 * 1000,
-  limit: 5,
+  limit: 10,
   message: 'Too many requests, please try again later.',
 });
 
