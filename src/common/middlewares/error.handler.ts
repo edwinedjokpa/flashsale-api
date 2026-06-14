@@ -13,12 +13,12 @@ export const globalErrorHandler = (
   next: NextFunction
 ) => {
   if (err instanceof HttpException) {
-    const response = createErrorResponse(err.message, {
+    const result = createErrorResponse(err.message, {
       status: err.statusCode,
       errorCode: err.constructor.name,
     });
 
-    res.status(err.statusCode).json(response);
+    res.status(err.statusCode).json(result);
     next();
     return;
   }
@@ -28,14 +28,11 @@ export const globalErrorHandler = (
       ? Http.BadRequest
       : Http.InternalServerError;
 
-  const response = createErrorResponse(
-    err.message || 'Internal Server Error!',
-    {
-      status: statusCode,
-      errorCode: err.name,
-      stack: config.NODE_ENV === 'development' ? err.stack : undefined,
-    }
-  );
+  const result = createErrorResponse(err.message || 'Internal Server Error!', {
+    status: statusCode,
+    errorCode: err.name,
+    stack: config.NODE_ENV === 'development' ? err.stack : undefined,
+  });
 
   if (config.NODE_ENV === 'development') {
     logger.error(`Error: ${err.message}`, { stack: err.stack });
@@ -43,6 +40,6 @@ export const globalErrorHandler = (
     logger.error(`Error: ${err.message}`);
   }
 
-  res.status(statusCode).json(response);
+  res.status(statusCode).json(result);
   return;
 };

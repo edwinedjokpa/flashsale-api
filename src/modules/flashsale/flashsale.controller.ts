@@ -24,24 +24,24 @@ export class FlashSaleController {
     async (req: RequestData<unknown, CreateFlashSaleDto>, res: Response) => {
       const { body } = req.validated;
 
-      const response = await this.flashSaleService.createFlashSale(body);
-      return res.status(Http.Created).json(response);
+      const result = await this.flashSaleService.createFlashSale(body);
+      return res.status(Http.Created).json(result);
     }
   );
 
   public getFlashSales = catchAsync(async (req: Request, res: Response) => {
-    const response = await this.flashSaleService.getFlashSales();
-    return res.status(Http.Ok).json(response);
+    const result = await this.flashSaleService.getFlashSales();
+    return res.status(Http.Ok).json(result);
   });
 
   public getFlashSale = catchAsync(
     async (req: RequestData<FlashSaleParamsDto>, res: Response) => {
       const { params } = req.validated;
 
-      const response = await this.flashSaleService.getFlashSale(
+      const result = await this.flashSaleService.getFlashSale(
         params.flashSaleId
       );
-      return res.status(Http.Ok).json(response);
+      return res.status(Http.Ok).json(result);
     }
   );
 
@@ -52,11 +52,11 @@ export class FlashSaleController {
     ) => {
       const { body, params } = req.validated;
 
-      const response = await this.flashSaleService.updateFlashSale(
+      const result = await this.flashSaleService.updateFlashSale(
         params.flashSaleId,
         body
       );
-      return res.status(Http.Ok).json(response);
+      return res.status(Http.Ok).json(result);
     }
   );
 
@@ -64,10 +64,10 @@ export class FlashSaleController {
     async (req: RequestData<FlashSaleParamsDto>, res: Response) => {
       const { params } = req.validated;
 
-      const response = await this.flashSaleService.deleteFlashSale(
+      const result = await this.flashSaleService.deleteFlashSale(
         params.flashSaleId
       );
-      return res.status(Http.Ok).json(response);
+      return res.status(Http.Ok).json(result);
     }
   );
 
@@ -79,12 +79,12 @@ export class FlashSaleController {
       const user = req.user;
       const { params } = req.validated;
 
-      const response = await this.flashSaleService.purchaseProduct(
+      const result = await this.flashSaleService.purchaseProduct(
         params.flashSaleId,
         user.id
       );
 
-      return res.status(Http.Ok).json(response);
+      return res.status(Http.Ok).json(result);
     }
   );
 
@@ -92,10 +92,10 @@ export class FlashSaleController {
     async (req: RequestData<FlashSaleParamsDto>, res: Response) => {
       const { params } = req.validated;
 
-      const response = await this.flashSaleService.getFlashSaleLeaderboard(
+      const result = await this.flashSaleService.getFlashSaleLeaderboard(
         params.flashSaleId
       );
-      return res.status(Http.Ok).json(response);
+      return res.status(Http.Ok).json(result);
     }
   );
 }

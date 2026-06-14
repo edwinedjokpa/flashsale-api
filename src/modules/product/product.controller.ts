@@ -24,22 +24,22 @@ export class ProductController {
     async (req: RequestData<never, CreateProductDto>, res: Response) => {
       const { body } = req.validated;
 
-      const response = await this.productService.createProduct(body);
-      return res.status(Http.Created).json(response);
+      const result = await this.productService.createProduct(body);
+      return res.status(Http.Created).json(result);
     }
   );
 
   public getProducts = catchAsync(async (req: Request, res: Response) => {
-    const response = await this.productService.getProducts();
-    return res.status(Http.Ok).json(response);
+    const result = await this.productService.getProducts();
+    return res.status(Http.Ok).json(result);
   });
 
   public getProduct = catchAsync(
     async (req: RequestData<ProductParamsDto>, res: Response) => {
       const { params } = req.validated;
 
-      const response = await this.productService.getProduct(params.productId);
-      return res.status(Http.Ok).json(response);
+      const result = await this.productService.getProduct(params.productId);
+      return res.status(Http.Ok).json(result);
     }
   );
 
@@ -50,11 +50,11 @@ export class ProductController {
     ) => {
       const { params, body } = req.validated;
 
-      const response = await this.productService.updateProduct(
+      const result = await this.productService.updateProduct(
         params.productId,
         body
       );
-      return res.status(Http.Ok).json(response);
+      return res.status(Http.Ok).json(result);
     }
   );
 
@@ -62,10 +62,8 @@ export class ProductController {
     async (req: RequestData<ProductParamsDto>, res: Response) => {
       const { params } = req.validated;
 
-      const response = await this.productService.deleteProduct(
-        params.productId
-      );
-      return res.status(Http.Ok).json(response);
+      const result = await this.productService.deleteProduct(params.productId);
+      return res.status(Http.Ok).json(result);
     }
   );
 
@@ -76,11 +74,11 @@ export class ProductController {
     ) => {
       const { params, body } = req.validated;
 
-      const response = await this.productService.incrementProductStock(
+      const result = await this.productService.incrementProductStock(
         params.productId,
         body
       );
-      return res.status(Http.Ok).json(response);
+      return res.status(Http.Ok).json(result);
     }
   );
 }

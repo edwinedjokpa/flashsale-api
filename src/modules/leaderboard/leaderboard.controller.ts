@@ -14,7 +14,7 @@ export class LeaderboardController {
   ) {}
 
   getLeaderboard = catchAsync(async (req: Request, res: Response) => {
-    const response = await this.leaderboardService.getLeaderboard();
-    return res.status(Http.Ok).json(response);
+    const result = await this.leaderboardService.getLeaderboard();
+    return res.status(Http.Ok).json(result);
   });
 }

@@ -18,8 +18,8 @@ export class UserController {
     async (req: AuthenticatedRequest, res: Response) => {
       const user = req.user;
 
-      const response = await this.userService.profile(user.id);
-      return res.status(Http.Ok).json(response);
+      const result = await this.userService.profile(user.id);
+      return res.status(Http.Ok).json(result);
     }
   );
 }

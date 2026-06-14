@@ -19,8 +19,8 @@ export class AuthController {
     async (req: RequestData<unknown, RegisterUserDto>, res: Response) => {
       const { body } = req.validated;
 
-      const response = await this.authService.register(body);
-      return res.status(Http.Created).json(response);
+      const result = await this.authService.register(body);
+      return res.status(Http.Created).json(result);
     }
   );
 
@@ -28,8 +28,8 @@ export class AuthController {
     async (req: RequestData<unknown, LoginUserDto>, res: Response) => {
       const { body } = req.validated;
 
-      const response = await this.authService.login(body);
-      return res.status(Http.Ok).json(response);
+      const result = await this.authService.login(body);
+      return res.status(Http.Ok).json(result);
     }
   );
 }
