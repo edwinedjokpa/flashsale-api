@@ -28,7 +28,12 @@ export class AuthService {
       password: hashedPassword,
     });
 
-    return createSuccessResponse('Account created successfully', { user });
+    return createSuccessResponse('Account created successfully', {
+      user: {
+        id: user.uuid,
+        email: user.email,
+      },
+    });
   }
 
   async login(loginUserDto: LoginUserDto) {
@@ -54,7 +59,10 @@ export class AuthService {
     });
 
     return createSuccessResponse('Account login successful', {
-      user: { id: user.id, email: user.email },
+      user: {
+        id: user.id,
+        email: user.email,
+      },
       token,
     });
   }
