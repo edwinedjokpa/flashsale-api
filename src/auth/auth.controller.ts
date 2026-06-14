@@ -1,11 +1,11 @@
-import { Request, Response } from 'express';
 import { Http } from '@status/codes';
+import { Request, Response } from 'express';
 import { Service } from 'typedi';
-import { AuthService } from './auth.service';
+import catchAsync from '../../common/utils/catch-async';
+import AppResponse from '../../common/utils/response';
 import { createUserSchema } from '../user/dtos/user.dto';
+import { AuthService } from './auth.service';
 import { loginUserSchema } from './dtos/auth.dto';
-import catchAsync from '../common/utils/catch-async';
-import AppResponse from '../common/utils/response';
 
 @Service()
 export class AuthController {

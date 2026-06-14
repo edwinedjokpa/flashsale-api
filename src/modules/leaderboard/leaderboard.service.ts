@@ -1,0 +1,43 @@
+import { inject, injectable } from 'inversify';
+import { ClientSession } from 'mongoose';
+
+import { CreateLeaderboardDto } from './dto/leaderboard.dto';
+import { LeaderboardQuery } from './leaderboard.query';
+import Leaderboard from './leaderboard.schema';
+
+import AppResponse from '@/common/utils/response';
+
+@injectable()
+export class LeaderboardService {
+  constructor(
+    @inject(LeaderboardQuery)
+    private readonly leaderboardQuery: LeaderboardQuery
+  ) {}
+
+  async addToLeaderboard(data: CreateLeaderboardDto, session: ClientSession) {
+    const leaderboard = await Leaderboard.create([
+      { ...data, purchasedTime: new Date() },
+      session,
+    ]);
+
+    return AppResponse.Success('Leaderboard added successfully', {
+      leaderboard: leaderboard[0],
+    });
+  }
+
+  async getLeaderboard() {
+    const leaderboard = await this.leaderboardQuery.getAll();
+
+    return AppResponse.Success('Leaderboard retrieved successfully', {
+      leaderboard,
+    });
+  }
+
+  async getLeaderboardByFlashSaleId(flashSaleId: string) {
+    return this.leaderboardQuery.getByFlashSaleId(flashSaleId);
+  }
+
+  async getLeaderboardForFlashSale(flashSaleId: string) {
+    return this.leaderboardQuery.getLeaderboardByFlashSaleId(flashSaleId);
+  }
+}

@@ -1,16 +1,35 @@
 import { Application } from 'express';
 import rateLimit from 'express-rate-limit';
 
-import authRouter from '../auth/auth.router';
-import userRouter from '../user/user.router';
-import productRouter from '../product/product.router';
-import flashsaleRouter from '../flashsale/flashsale.router';
-import leaderboardRouter from '../leaderboard/leaderboard.router';
+import { container } from './container';
 
-// Define the rate limiter middleware
-const rateLimiter = rateLimit({
+import { AuthRouter } from '@/modules/auth/auth.router';
+import { FlashSaleRouter } from '@/modules/flashsale/flashsale.router';
+import { LeaderboardRouter } from '@/modules/leaderboard/leaderboard.router';
+import { ProductRouter } from '@/modules/product/product.router';
+import { UserRouter } from '@/modules/user/user.router';
+
+const globalLimiter = rateLimit({
   windowMs: 1 * 60 * 1000,
+  limit: 100,
+  message: 'Too many requests, please try again later.',
+});
+
+const readLimiter = rateLimit({
+  windowMs: 1 * 60 * 1000,
+  limit: 60,
+  message: 'Too many requests, please try again later.',
+});
+
+const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
   limit: 10,
+  message: 'Too many requests, please try again later.',
+});
+
+const purchaseLimiter = rateLimit({
+  windowMs: 60 * 60 * 1000,
+  limit: 5,
   message: 'Too many requests, please try again later.',
 });
 
@@ -26,11 +45,23 @@ const setupRoutes = (app: Application): void => {
   });
 
   // API Routes with rate limiting middleware applied
-  app.use('/api/auth', rateLimiter, authRouter());
-  app.use('/api/user', rateLimiter, userRouter());
-  app.use('/api/products', rateLimiter, productRouter());
-  app.use('/api/flashsales', rateLimiter, flashsaleRouter());
-  app.use('/api/leaderboard', rateLimiter, leaderboardRouter());
+  app.use('/api/auth', authLimiter, container.get(AuthRouter).getRouter());
+  app.use('/api/me', globalLimiter, container.get(UserRouter).getRouter());
+  app.use(
+    '/api/products',
+    readLimiter,
+    container.get(ProductRouter).getRouter()
+  );
+  app.use(
+    '/api/flashsales',
+    purchaseLimiter,
+    container.get(FlashSaleRouter).getRouter()
+  );
+  app.use(
+    '/api/leaderboard',
+    readLimiter,
+    container.get(LeaderboardRouter).getRouter()
+  );
 };
 
 export default setupRoutes;

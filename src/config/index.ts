@@ -2,7 +2,7 @@ import dotenv from 'dotenv';
 
 dotenv.config();
 
-export const configService = {
+export const config = {
   // General settings
   NODE_ENV: (process.env.NODE_ENV as string) || 'development',
 

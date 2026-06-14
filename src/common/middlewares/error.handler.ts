@@ -1,7 +1,7 @@
 import { NextFunction, Request, Response } from 'express';
 import { Http } from '@status/codes';
 import { HttpException } from '../utils/http.exception';
-import { configService } from '../../config';
+import { config } from '../../config';
 import AppResponse from '../utils/response';
 import logger from '../utils/logger';
 
@@ -31,11 +31,11 @@ export const globalErrorHandler = (
   const response = AppResponse.Error(err.message || 'Internal Server Error!', {
     status: statusCode,
     errorCode: err.name,
-    stack: configService.NODE_ENV === 'development' ? err.stack : undefined,
+    stack: config.NODE_ENV === 'development' ? err.stack : undefined,
   });
 
   // Log the error details (excluding stack trace in production)
-  if (configService.NODE_ENV === 'development') {
+  if (config.NODE_ENV === 'development') {
     logger.error(`Error: ${err.message}`, { stack: err.stack });
   } else {
     logger.error(`Error: ${err.message}`);
