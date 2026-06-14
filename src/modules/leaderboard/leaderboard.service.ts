@@ -2,8 +2,8 @@ import { inject, injectable } from 'inversify';
 import { ClientSession } from 'mongoose';
 
 import { CreateLeaderboardDto } from './dto/leaderboard.dto';
+import Leaderboard from './leaderboard.model';
 import { LeaderboardQuery } from './leaderboard.query';
-import Leaderboard from './leaderboard.schema';
 
 import { createSuccessResponse } from '@/common/utils/response';
 

@@ -8,7 +8,7 @@ import {
   RestockProductDto,
   UpdateProductDto,
 } from './dto/product.dto';
-import Product, { IProduct } from './product.schema';
+import Product, { IProduct } from './product.model';
 
 import { HttpException } from '@/common/utils/http.exception';
 import { createSuccessResponse } from '@/common/utils/response';

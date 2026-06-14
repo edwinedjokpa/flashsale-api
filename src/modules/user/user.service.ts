@@ -1,7 +1,7 @@
 import { Http } from '@status/codes';
 import { injectable } from 'inversify';
 
-import User from './user.schema';
+import User from './user.model';
 
 import { HttpException } from '@/common/utils/http.exception';
 import { createSuccessResponse } from '@/common/utils/response';

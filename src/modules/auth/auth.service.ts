@@ -3,7 +3,7 @@ import bcrypt from 'bcryptjs';
 import { injectable } from 'inversify';
 import jwt from 'jsonwebtoken';
 
-import User from '../user/user.schema';
+import User from '../user/user.model';
 
 import { LoginUserDto, RegisterUserDto } from './dto/auth.dto';
 

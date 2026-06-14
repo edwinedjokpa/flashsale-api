@@ -5,7 +5,7 @@ import { LeaderboardService } from '../leaderboard/leaderboard.service';
 import { ProductService } from '../product/product.service';
 
 import { CreateFlashSaleDto, UpdateFlashSaleDto } from './dto/flashsale.dto';
-import FlashSale, { IFlashSale } from './flashsale.schema';
+import FlashSale, { IFlashSale } from './flashsale.model';
 
 import { HttpException } from '@/common/utils/http.exception';
 import { createSuccessResponse } from '@/common/utils/response';

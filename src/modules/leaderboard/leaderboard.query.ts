@@ -1,7 +1,7 @@
 import { injectable } from 'inversify';
 import { Types } from 'mongoose';
 
-import Leaderboard, { ILeaderboard } from './leaderboard.schema';
+import Leaderboard, { ILeaderboard } from './leaderboard.model';
 
 @injectable()
 export class LeaderboardQuery {
