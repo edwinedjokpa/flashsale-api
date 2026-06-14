@@ -40,14 +40,10 @@ export class AuthService {
     const { email, password } = loginUserDto;
 
     const user = await User.findOne({ email });
-    if (!user) {
-      throw new UnauthorizedException('Invalid credentials');
-    }
+    if (!user) throw new UnauthorizedException('Invalid credentials');
 
     const isValid = await bcrypt.compare(password, user.password);
-    if (!isValid) {
-      throw new UnauthorizedException('Invalid credentials');
-    }
+    if (!isValid) throw new UnauthorizedException('Invalid credentials');
 
     const payload: JwtPayload = {
       id: user.id as string,

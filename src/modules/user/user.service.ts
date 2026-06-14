@@ -12,9 +12,7 @@ export class UserService {
   async profile(userId: string) {
     const user = await User.findById(userId);
 
-    if (!user) {
-      throw new NotFoundException('User not found');
-    }
+    if (!user) throw new NotFoundException('User not found');
 
     return createSuccessResponse('User profile data fetched successfully', {
       user: { id: user.id, email: user.email },

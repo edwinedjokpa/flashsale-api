@@ -141,10 +141,7 @@ export class FlashSaleService {
 
   private async getFlashSaleById(flashSaleId: string): Promise<IFlashSale> {
     const flashSale = await FlashSale.findById(flashSaleId);
-
-    if (!flashSale) {
-      throw new NotFoundException('Flash sale event not found');
-    }
+    if (!flashSale) throw new NotFoundException('Flash sale event not found');
 
     return flashSale;
   }

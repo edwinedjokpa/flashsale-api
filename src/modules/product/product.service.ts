@@ -101,9 +101,7 @@ export class ProductService {
   async getProductById(productId: string): Promise<IProduct> {
     const product = await Product.findById(productId);
 
-    if (!product) {
-      throw new NotFoundException('Product not found');
-    }
+    if (!product) throw new NotFoundException('Product not found');
 
     return product;
   }
