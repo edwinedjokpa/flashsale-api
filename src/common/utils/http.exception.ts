@@ -1,4 +1,4 @@
-import AppResponse from './response';
+import { createErrorResponse } from './response';
 
 export class HttpException extends Error {
   statusCode: number;
@@ -9,6 +9,6 @@ export class HttpException extends Error {
   }
 
   toResponse() {
-    return AppResponse.Error(this.message);
+    return createErrorResponse(this.message);
   }
 }

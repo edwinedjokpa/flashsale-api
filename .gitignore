@@ -12,3 +12,4 @@ package-lock.json
 # dotfiles
 .env
 .dockerignore
+.vscode/

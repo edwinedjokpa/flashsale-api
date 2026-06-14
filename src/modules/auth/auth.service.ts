@@ -9,7 +9,7 @@ import { LoginUserDto, RegisterUserDto } from './dto/auth.dto';
 
 import { JwtPayload } from '@/common/interfaces/jwt-payload.interface';
 import { HttpException } from '@/common/utils/http.exception';
-import AppResponse from '@/common/utils/response';
+import { createSuccessResponse } from '@/common/utils/response';
 import { config } from '@/config/index';
 
 @injectable()
@@ -30,7 +30,7 @@ export class AuthService {
       password: hashedPassword,
     });
 
-    return AppResponse.Success('Account created successfully', { user });
+    return createSuccessResponse('Account created successfully', { user });
   }
 
   async login(loginUserDto: LoginUserDto) {
@@ -55,7 +55,7 @@ export class AuthService {
       expiresIn: +config.JWT_EXPIRES_IN,
     });
 
-    return AppResponse.Success('Account login successful', {
+    return createSuccessResponse('Account login successful', {
       user: { id: user.id, email: user.email },
       accessToken,
     });

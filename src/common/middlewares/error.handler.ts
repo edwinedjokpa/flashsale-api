@@ -1,9 +1,10 @@
-import { NextFunction, Request, Response } from 'express';
 import { Http } from '@status/codes';
-import { HttpException } from '../utils/http.exception';
-import { config } from '../../config';
-import AppResponse from '../utils/response';
-import logger from '../utils/logger';
+import { NextFunction, Request, Response } from 'express';
+
+import { HttpException } from '@/common/utils/http.exception';
+import logger from '@/common/utils/logger';
+import { createErrorResponse } from '@/common/utils/response';
+import { config } from '@/config/index';
 
 export const globalErrorHandler = (
   err: Error | HttpException,
@@ -11,9 +12,8 @@ export const globalErrorHandler = (
   res: Response,
   next: NextFunction
 ) => {
-  // Handle custom HttpException
   if (err instanceof HttpException) {
-    const response = AppResponse.Error(err.message, {
+    const response = createErrorResponse(err.message, {
       status: err.statusCode,
       errorCode: err.constructor.name,
     });
@@ -28,13 +28,15 @@ export const globalErrorHandler = (
       ? Http.BadRequest
       : Http.InternalServerError;
 
-  const response = AppResponse.Error(err.message || 'Internal Server Error!', {
-    status: statusCode,
-    errorCode: err.name,
-    stack: config.NODE_ENV === 'development' ? err.stack : undefined,
-  });
+  const response = createErrorResponse(
+    err.message || 'Internal Server Error!',
+    {
+      status: statusCode,
+      errorCode: err.name,
+      stack: config.NODE_ENV === 'development' ? err.stack : undefined,
+    }
+  );
 
-  // Log the error details (excluding stack trace in production)
   if (config.NODE_ENV === 'development') {
     logger.error(`Error: ${err.message}`, { stack: err.stack });
   } else {

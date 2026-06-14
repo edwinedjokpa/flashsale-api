@@ -11,7 +11,7 @@ import {
 import Product, { IProduct } from './product.schema';
 
 import { HttpException } from '@/common/utils/http.exception';
-import AppResponse from '@/common/utils/response';
+import { createSuccessResponse } from '@/common/utils/response';
 
 @injectable()
 export class ProductService {
@@ -28,19 +28,21 @@ export class ProductService {
       price: priceInCents,
     });
 
-    return AppResponse.Success('Product created successfully', { product });
+    return createSuccessResponse('Product created successfully', { product });
   }
 
   async getProducts() {
     const products = await Product.find({}).exec();
-    return AppResponse.Success('Products retrieved successfully', { products });
+    return createSuccessResponse('Products retrieved successfully', {
+      products,
+    });
   }
 
   async getProduct(productId: string) {
     const product = await this.getProductById(productId);
 
     const data = { product };
-    return AppResponse.Success('Product retrieved successfully', data);
+    return createSuccessResponse('Product retrieved successfully', data);
   }
 
   async updateProduct(productId: string, data: UpdateProductDto) {
@@ -63,7 +65,7 @@ export class ProductService {
       throw new HttpException(Http.BadRequest, 'Failed to update product');
     }
 
-    return AppResponse.Success('Product updated successfully', {
+    return createSuccessResponse('Product updated successfully', {
       product: updatedProduct,
     });
   }
@@ -72,7 +74,7 @@ export class ProductService {
     await this.getProductById(productId);
     await Product.findByIdAndDelete(productId);
 
-    return AppResponse.Success('Product deleted successfully');
+    return createSuccessResponse('Product deleted successfully');
   }
 
   async incrementProductStock(productId: string, data: RestockProductDto) {
@@ -91,7 +93,7 @@ export class ProductService {
       );
     }
 
-    return AppResponse.Success('Product stock incremented successfully', {
+    return createSuccessResponse('Product stock incremented successfully', {
       product: updatedProduct,
     });
   }

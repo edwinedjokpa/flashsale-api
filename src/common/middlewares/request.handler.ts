@@ -1,5 +1,6 @@
-import logger from '../utils/logger';
-import { Request, Response, NextFunction } from 'express';
+import { NextFunction, Request, Response } from 'express';
+
+import logger from '@/common/utils/logger';
 
 export const globalRequestHandler = (
   req: Request,

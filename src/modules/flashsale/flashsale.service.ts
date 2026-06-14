@@ -8,7 +8,7 @@ import { CreateFlashSaleDto, UpdateFlashSaleDto } from './dto/flashsale.dto';
 import FlashSale, { IFlashSale } from './flashsale.schema';
 
 import { HttpException } from '@/common/utils/http.exception';
-import AppResponse from '@/common/utils/response';
+import { createSuccessResponse } from '@/common/utils/response';
 
 @injectable()
 export class FlashSaleService {
@@ -31,7 +31,7 @@ export class FlashSaleService {
       throw new HttpException(Http.BadRequest, 'Failed to create flash sale');
     }
 
-    return AppResponse.Success('Flashsale event created successfully', {
+    return createSuccessResponse('Flashsale event created successfully', {
       flashSale,
     });
   }
@@ -39,7 +39,7 @@ export class FlashSaleService {
   async getFlashSales() {
     const flashSales = await FlashSale.find().exec();
 
-    return AppResponse.Success('Flashsale events retrieved successfully', {
+    return createSuccessResponse('Flashsale events retrieved successfully', {
       flashSales,
     });
   }
@@ -47,7 +47,7 @@ export class FlashSaleService {
   async getFlashSale(flashSaleId: string) {
     const flashSale = await this.getFlashSaleById(flashSaleId);
 
-    return AppResponse.Success('Flashsale event retrieved successfully', {
+    return createSuccessResponse('Flashsale event retrieved successfully', {
       flashSale,
     });
   }
@@ -70,7 +70,7 @@ export class FlashSaleService {
       throw new HttpException(Http.BadRequest, 'Failed to update flashsale');
     }
 
-    return AppResponse.Success('Flashsale event updated successfully', {
+    return createSuccessResponse('Flashsale event updated successfully', {
       flashSale: updatedFlashSale,
     });
   }
@@ -79,7 +79,7 @@ export class FlashSaleService {
     await this.getFlashSaleById(flashSaleId);
     await FlashSale.findByIdAndDelete(flashSaleId);
 
-    return AppResponse.Success('Flashsale event deleted successfully');
+    return createSuccessResponse('Flashsale event deleted successfully');
   }
 
   async purchaseProduct(flashSaleId: string, userId: string) {
@@ -149,7 +149,7 @@ export class FlashSaleService {
       await session.commitTransaction();
       session.endSession();
 
-      return AppResponse.Success('Product purchased successfully', {
+      return createSuccessResponse('Product purchased successfully', {
         flashSale: updatedSalesEvent,
       });
     } catch (error) {
@@ -163,7 +163,7 @@ export class FlashSaleService {
     const leaderboard =
       await this.leaderboardService.getLeaderboardByFlashSaleId(flashSaleId);
 
-    return AppResponse.Success('Leaderboard fetched successfully', {
+    return createSuccessResponse('Leaderboard fetched successfully', {
       leaderboard,
     });
   }

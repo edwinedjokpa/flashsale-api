@@ -5,7 +5,7 @@ import { CreateLeaderboardDto } from './dto/leaderboard.dto';
 import { LeaderboardQuery } from './leaderboard.query';
 import Leaderboard from './leaderboard.schema';
 
-import AppResponse from '@/common/utils/response';
+import { createSuccessResponse } from '@/common/utils/response';
 
 @injectable()
 export class LeaderboardService {
@@ -20,7 +20,7 @@ export class LeaderboardService {
       session,
     ]);
 
-    return AppResponse.Success('Leaderboard added successfully', {
+    return createSuccessResponse('Leaderboard added successfully', {
       leaderboard: leaderboard[0],
     });
   }
@@ -28,7 +28,7 @@ export class LeaderboardService {
   async getLeaderboard() {
     const leaderboard = await this.leaderboardQuery.getAll();
 
-    return AppResponse.Success('Leaderboard retrieved successfully', {
+    return createSuccessResponse('Leaderboard retrieved successfully', {
       leaderboard,
     });
   }

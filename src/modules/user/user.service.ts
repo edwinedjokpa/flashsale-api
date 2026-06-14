@@ -4,7 +4,7 @@ import { injectable } from 'inversify';
 import User from './user.schema';
 
 import { HttpException } from '@/common/utils/http.exception';
-import AppResponse from '@/common/utils/response';
+import { createSuccessResponse } from '@/common/utils/response';
 
 @injectable()
 export class UserService {
@@ -17,7 +17,7 @@ export class UserService {
       throw new HttpException(Http.NotFound, 'User not found');
     }
 
-    return AppResponse.Success('User profile data fetched successfully', {
+    return createSuccessResponse('User profile data fetched successfully', {
       user,
     });
   }
