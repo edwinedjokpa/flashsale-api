@@ -1,4 +1,3 @@
-import { Http } from '@status/codes';
 import { inject, injectable } from 'inversify';
 
 import { LeaderboardService } from '../leaderboard/leaderboard.service';
@@ -7,8 +6,8 @@ import { ProductService } from '../product/product.service';
 import { CreateFlashSaleDto, UpdateFlashSaleDto } from './dto/flashsale.dto';
 import FlashSale, { IFlashSale } from './flashsale.model';
 
-import { HttpException } from '@/common/utils/http.exception';
-import { createSuccessResponse } from '@/common/utils/response';
+import { BadRequestException, NotFoundException } from '@/common/exceptions';
+import { createSuccessResponse } from '@/common/utils/api-response';
 
 @injectable()
 export class FlashSaleService {
@@ -26,10 +25,6 @@ export class FlashSaleService {
       ...data,
       remainingUnits: product.stock,
     });
-
-    if (!flashSale) {
-      throw new HttpException(Http.BadRequest, 'Failed to create flash sale');
-    }
 
     return createSuccessResponse('Flashsale event created successfully', {
       flashSale,
@@ -66,10 +61,6 @@ export class FlashSaleService {
       }
     ).exec();
 
-    if (!updatedFlashSale) {
-      throw new HttpException(Http.BadRequest, 'Failed to update flashsale');
-    }
-
     return createSuccessResponse('Flashsale event updated successfully', {
       flashSale: updatedFlashSale,
     });
@@ -86,18 +77,12 @@ export class FlashSaleService {
     const flashSale = await this.getFlashSaleById(flashSaleId);
     const productId = flashSale.productId.toString();
 
-    // Check sales start time
     if (new Date() < flashSale.saleStartTime) {
-      throw new HttpException(
-        Http.BadRequest,
-        'Flashsale event has not started yet.'
-      );
+      throw new BadRequestException('Flashsale event has not started yet.');
     }
 
-    // Check product stock
     if (flashSale.remainingUnits <= 0) {
-      throw new HttpException(
-        Http.BadRequest,
+      throw new BadRequestException(
         'Flashsale event has ended as the product is out of stock.'
       );
     }
@@ -110,17 +95,13 @@ export class FlashSaleService {
     );
 
     if (userHasPurchased) {
-      throw new HttpException(
-        Http.BadRequest,
-        'You have already purchased this product.'
-      );
+      throw new BadRequestException('You have already purchased this product.');
     }
 
     const session = await FlashSale.startSession();
     session.startTransaction();
 
     try {
-      // Decrement stock and add purchased user within the session
       const updatedSalesEvent = await FlashSale.findOneAndUpdate(
         { _id: flashSaleId, remainingUnits: { $gt: 0 } },
         {
@@ -129,23 +110,13 @@ export class FlashSaleService {
         { session, new: true }
       );
 
-      if (!updatedSalesEvent) {
-        throw new HttpException(
-          Http.BadRequest,
-          'Failed to decrement remaining units and add purchased user.'
-        );
-      }
-
-      // Update product stock
       await this.productService.decrementStock(productId, session);
 
-      // Add to leaderboard
       await this.leaderboardService.addToLeaderboard(
         { flashSaleId, userId, productId },
         session
       );
 
-      // Commit transaction
       await session.commitTransaction();
       session.endSession();
 
@@ -168,12 +139,11 @@ export class FlashSaleService {
     });
   }
 
-  // Helper function
-  async getFlashSaleById(flashSaleId: string): Promise<IFlashSale> {
+  private async getFlashSaleById(flashSaleId: string): Promise<IFlashSale> {
     const flashSale = await FlashSale.findById(flashSaleId);
 
     if (!flashSale) {
-      throw new HttpException(Http.NotFound, 'Flash sale not found');
+      throw new NotFoundException('Flash sale event not found');
     }
 
     return flashSale;

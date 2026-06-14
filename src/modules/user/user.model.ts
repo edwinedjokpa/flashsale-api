@@ -1,21 +1,32 @@
 import { Document, Schema, model } from 'mongoose';
 
 export interface IUser extends Document {
-  firstName: string;
-  lastName: string;
+  uuid: string;
   email: string;
   password: string;
+  firstName: string;
+  lastName: string;
+  fullName: string;
 }
 
 const userSchema = new Schema<IUser>(
   {
-    firstName: { type: String, required: true },
-    lastName: { type: String, required: true },
+    uuid: { type: String, default: () => crypto.randomUUID() },
     email: { type: String, required: true, unique: true },
     password: { type: String, required: true },
+    firstName: { type: String, required: true },
+    lastName: { type: String, required: true },
   },
-  { timestamps: true }
+  {
+    timestamps: true,
+    toJSON: { virtuals: true },
+    toObject: { virtuals: true },
+  }
 );
+
+userSchema.virtual('fullName').get(function () {
+  return `${this.firstName} ${this.lastName}`;
+});
 
 const User = model<IUser>('User', userSchema);
 

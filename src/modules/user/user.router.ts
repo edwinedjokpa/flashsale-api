@@ -16,7 +16,7 @@ export class UserRouter {
     const router = Router();
 
     router.get(
-      '/',
+      '/me',
       authMiddleware,
       this.controller.profile.bind(this.controller)
     );

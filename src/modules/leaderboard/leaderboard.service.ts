@@ -5,7 +5,7 @@ import { CreateLeaderboardDto } from './dto/leaderboard.dto';
 import Leaderboard from './leaderboard.model';
 import { LeaderboardQuery } from './leaderboard.query';
 
-import { createSuccessResponse } from '@/common/utils/response';
+import { createSuccessResponse } from '@/common/utils/api-response';
 
 @injectable()
 export class LeaderboardService {

@@ -1,45 +1,54 @@
-import { Http } from '@status/codes';
-import { NextFunction, Request, Response } from 'express';
+import { ErrorRequestHandler } from 'express';
 
+import { createErrorResponse } from '@/common/utils/api-response';
 import { HttpException } from '@/common/utils/http.exception';
-import logger from '@/common/utils/logger';
-import { createErrorResponse } from '@/common/utils/response';
-import { config } from '@/config/index';
 
-export const globalErrorHandler = (
-  err: Error | HttpException,
-  req: Request,
-  res: Response,
-  next: NextFunction
-) => {
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+export const errorHandler: ErrorRequestHandler = (err, req, res, next) => {
   if (err instanceof HttpException) {
-    const result = createErrorResponse(err.message, {
-      status: err.statusCode,
-      errorCode: err.constructor.name,
-    });
-
-    res.status(err.statusCode).json(result);
-    next();
+    res.status(err.statusCode).json(err.toResponse());
     return;
   }
 
-  const statusCode =
-    err instanceof Error && err.message === 'Validation failed'
-      ? Http.BadRequest
-      : Http.InternalServerError;
-
-  const result = createErrorResponse(err.message || 'Internal Server Error!', {
-    status: statusCode,
-    errorCode: err.name,
-    stack: config.NODE_ENV === 'development' ? err.stack : undefined,
-  });
-
-  if (config.NODE_ENV === 'development') {
-    logger.error(`Error: ${err.message}`, { stack: err.stack });
-  } else {
-    logger.error(`Error: ${err.message}`);
+  if (err.name === 'CastError') {
+    res.status(400).json(
+      createErrorResponse({
+        statusCode: 400,
+        code: 'INVALID_ID',
+        message: 'Invalid ID format',
+      })
+    );
+    return;
   }
 
-  res.status(statusCode).json(result);
-  return;
+  if (err.name === 'ValidationError') {
+    res.status(400).json(
+      createErrorResponse({
+        statusCode: 400,
+        code: 'VALIDATION_ERROR',
+        message: 'Invalid data',
+      })
+    );
+    return;
+  }
+
+  if (err.code === 11000) {
+    res.status(400).json(
+      createErrorResponse({
+        statusCode: 400,
+        code: 'CONFLICT',
+        message: 'Resource already exists',
+      })
+    );
+    return;
+  }
+
+  res.status(500).json(
+    createErrorResponse({
+      statusCode: 500,
+      code: 'INTERNAL_ERROR',
+      message: 'Something went wrong',
+      details: process.env.NODE_ENV === 'development' ? err.message : undefined,
+    })
+  );
 };

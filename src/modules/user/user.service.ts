@@ -1,10 +1,9 @@
-import { Http } from '@status/codes';
 import { injectable } from 'inversify';
 
 import User from './user.model';
 
-import { HttpException } from '@/common/utils/http.exception';
-import { createSuccessResponse } from '@/common/utils/response';
+import { NotFoundException } from '@/common/exceptions';
+import { createSuccessResponse } from '@/common/utils/api-response';
 
 @injectable()
 export class UserService {
@@ -14,11 +13,11 @@ export class UserService {
     const user = await User.findById(userId);
 
     if (!user) {
-      throw new HttpException(Http.NotFound, 'User not found');
+      throw new NotFoundException('User not found');
     }
 
     return createSuccessResponse('User profile data fetched successfully', {
-      user,
+      user: { id: user.id, email: user.email },
     });
   }
 }

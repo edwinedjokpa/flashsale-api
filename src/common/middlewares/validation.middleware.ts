@@ -1,6 +1,9 @@
 import { RequestHandler } from 'express';
 import { ZodTypeAny } from 'zod';
 
+import { ValidationException } from '@/common/exceptions/index';
+import { formatZodErrors } from '@/common/utils/api-response';
+
 type ValidationSchemas = {
   params?: ZodTypeAny;
   body?: ZodTypeAny;
@@ -16,45 +19,39 @@ export const validateRequest =
     if (params && req.params) {
       const result = params.safeParse(req.params);
       if (!result.success) {
-        res.status(400).json({
-          success: false,
-          message: 'Invalid route parameters',
-          errors: result.error.format(),
-        });
-
-        return;
+        return next(
+          new ValidationException(
+            'Invalid route parameters',
+            formatZodErrors(result.error)
+          )
+        );
       }
-
       validated.params = result.data;
     }
 
     if (body) {
       const result = body.safeParse(req.body);
       if (!result.success) {
-        res.status(400).json({
-          success: false,
-          message: 'Invalid request body',
-          errors: result.error.format(),
-        });
-
-        return;
+        return next(
+          new ValidationException(
+            'Invalid request body',
+            formatZodErrors(result.error)
+          )
+        );
       }
-
       validated.body = result.data;
     }
 
     if (query && req.query) {
       const result = query.safeParse(req.query);
       if (!result.success) {
-        res.status(400).json({
-          success: false,
-          message: 'Invalid query parameters',
-          errors: result.error.format(),
-        });
-
-        return;
+        return next(
+          new ValidationException(
+            'Invalid query parameters',
+            formatZodErrors(result.error)
+          )
+        );
       }
-
       validated.query = result.data;
     }
 

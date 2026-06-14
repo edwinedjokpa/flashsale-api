@@ -1,4 +1,3 @@
-import { Http } from '@status/codes';
 import Decimal from 'decimal.js';
 import { injectable } from 'inversify';
 import { ClientSession } from 'mongoose';
@@ -10,8 +9,8 @@ import {
 } from './dto/product.dto';
 import Product, { IProduct } from './product.model';
 
-import { HttpException } from '@/common/utils/http.exception';
-import { createSuccessResponse } from '@/common/utils/response';
+import { NotFoundException } from '@/common/exceptions';
+import { createSuccessResponse } from '@/common/utils/api-response';
 
 @injectable()
 export class ProductService {
@@ -61,10 +60,6 @@ export class ProductService {
       runValidators: true,
     }).exec();
 
-    if (!updatedProduct) {
-      throw new HttpException(Http.BadRequest, 'Failed to update product');
-    }
-
     return createSuccessResponse('Product updated successfully', {
       product: updatedProduct,
     });
@@ -85,13 +80,6 @@ export class ProductService {
       { $inc: { stock: data.stock } },
       { new: true }
     );
-
-    if (!updatedProduct) {
-      throw new HttpException(
-        Http.BadRequest,
-        'Failed to increment product stock'
-      );
-    }
 
     return createSuccessResponse('Product stock incremented successfully', {
       product: updatedProduct,
@@ -114,7 +102,7 @@ export class ProductService {
     const product = await Product.findById(productId);
 
     if (!product) {
-      throw new HttpException(Http.NotFound, 'Product not found');
+      throw new NotFoundException('Product not found');
     }
 
     return product;

@@ -37,16 +37,14 @@ const setupRoutes = (app: Application): void => {
   // Main Route, redirecting to API Docs
   app.get('/', (_req, res) => {
     res.send('Welcome to the Flash Sale API!');
-  });
-
-  // Health Check route
+  }); // Health Check route
   app.get('/health', (_req, res) => {
     res.send('Server is healthy');
   });
 
   // API Routes with rate limiting middleware applied
   app.use('/api/auth', authLimiter, container.get(AuthRouter).getRouter());
-  app.use('/api/me', globalLimiter, container.get(UserRouter).getRouter());
+  app.use('/api/user', globalLimiter, container.get(UserRouter).getRouter());
   app.use(
     '/api/products',
     readLimiter,

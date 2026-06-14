@@ -1,14 +1,32 @@
-import { createErrorResponse } from './response';
+import { createErrorResponse, ErrorResponse } from './api-response';
 
 export class HttpException extends Error {
   statusCode: number;
-  message!: string;
-  constructor(statusCode: number, message: string) {
+  code: string;
+  errors?: ErrorResponse['errors'];
+  details?: unknown;
+
+  constructor({
+    statusCode,
+    code,
+    message,
+    errors,
+    details,
+  }: Omit<ErrorResponse, 'success'>) {
     super(message);
     this.statusCode = statusCode;
+    this.code = code;
+    this.errors = errors;
+    this.details = details;
   }
 
-  toResponse() {
-    return createErrorResponse(this.message);
+  toResponse(): ErrorResponse {
+    return createErrorResponse({
+      statusCode: this.statusCode,
+      code: this.code,
+      message: this.message,
+      errors: this.errors,
+      details: this.details,
+    });
   }
 }

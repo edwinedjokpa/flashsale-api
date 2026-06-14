@@ -1,15 +1,15 @@
-import 'reflect-metadata';
-import express, { Application } from 'express';
-import helmet from 'helmet';
 import compression from 'compression';
 import cors from 'cors';
+import express, { Application } from 'express';
+import helmet from 'helmet';
+import 'reflect-metadata';
 
-import setupRoutes from './routes';
+import { errorHandler } from '@/common/middlewares/error.handler';
+import { requestHandler } from '@/common/middlewares/request.handler';
+import { corsOptions } from '@/config/cors.config';
+import setupRoutes from '@/core/routes';
 
 // Middlewares
-import { globalRequestHandler } from '../common/middlewares/request.handler';
-import { globalErrorHandler } from '../common/middlewares/error.handler';
-
 export const setupApp = (): Application => {
   const app = express();
 
@@ -19,16 +19,16 @@ export const setupApp = (): Application => {
   app.use(express.json());
   app.use(helmet());
   app.use(compression());
-  app.use(cors());
+  app.use(cors(corsOptions));
 
-  // Request logger
-  app.use(globalRequestHandler);
+  // Request handler
+  app.use(requestHandler);
 
   // Routes
   setupRoutes(app);
 
-  // Error handler (must be last)
-  app.use(globalErrorHandler);
+  // Error handler
+  app.use(errorHandler);
 
   return app;
 };
